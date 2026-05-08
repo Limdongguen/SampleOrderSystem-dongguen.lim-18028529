@@ -9,6 +9,7 @@ namespace {
 
 MainController::MainController()
     : m_sampleController(std::make_unique<SampleController>())
+    , m_orderController(std::make_unique<OrderController>())
 {
 }
 
@@ -28,7 +29,7 @@ int MainController::readChoice() const {
 void MainController::handleChoice(int choice) {
     switch (choice) {
     case 1: m_sampleController->run(); break;
-    case 2: m_view.printNotImplemented("[2] 시료 주문"); break;
+    case 2: m_orderController->reserve(); break;
     case 3: m_view.printNotImplemented("[3] 주문 승인/거절"); break;
     case 4: m_view.printNotImplemented("[4] 모니터링"); break;
     case 5: m_view.printNotImplemented("[5] 생산라인 조회"); break;

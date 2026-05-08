@@ -16,6 +16,7 @@ protected:
         fs::remove(kSampleFile);
         fs::remove(kOrderFile);
         sampleService = std::make_unique<SampleService>(kSampleFile);
+        // orderService는 sampleService로 샘플을 등록한 후 재생성하여 최신 파일을 읽도록 함
         orderService  = std::make_unique<OrderService>(kSampleFile, kOrderFile);
     }
 
@@ -29,7 +30,10 @@ protected:
         EXPECT_TRUE(ok);
         auto all = sampleService->getAllSamples();
         EXPECT_FALSE(all.empty());
-        return all.empty() ? "" : all[0].sampleId;
+        if (all.empty()) return "";
+        // SampleService가 파일에 저장한 후, OrderService를 재생성하여 최신 샘플 목록을 로드
+        orderService = std::make_unique<OrderService>(kSampleFile, kOrderFile);
+        return all[0].sampleId;
     }
 
     std::unique_ptr<SampleService> sampleService;

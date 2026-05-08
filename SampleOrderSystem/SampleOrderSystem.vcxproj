@@ -152,6 +152,10 @@
     <ClCompile Include="$(ProjectDir)..\src\view\SampleView.cpp" />
     <ClCompile Include="$(ProjectDir)..\src\view\MainView.cpp" />
     <ClCompile Include="$(ProjectDir)..\src\controller\SampleController.cpp" />
+    <ClCompile Include="$(ProjectDir)..\src\repository\OrderRepository.cpp" />
+    <ClCompile Include="$(ProjectDir)..\src\service\OrderService.cpp" />
+    <ClCompile Include="$(ProjectDir)..\src\view\OrderView.cpp" />
+    <ClCompile Include="$(ProjectDir)..\src\controller\OrderController.cpp" />
     <ClCompile Include="$(ProjectDir)..\tests\JsonFileManagerTest.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'!='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
