@@ -2,6 +2,10 @@
 #include "controller/SampleController.h"
 #include "controller/OrderController.h"
 #include "controller/ApprovalController.h"
+#include "controller/ProductionController.h"
+#include "controller/ReleaseController.h"
+#include "service/ProductionService.h"
+#include "service/ReleaseService.h"
 #include "view/MainView.h"
 #include <memory>
 
@@ -11,10 +15,14 @@ public:
     void run();
 
 private:
-    std::unique_ptr<SampleController>   m_sampleController;
-    std::unique_ptr<OrderController>    m_orderController;
-    std::unique_ptr<ApprovalController> m_approvalController;
-    MainView                            m_view;
+    std::shared_ptr<ProductionService>   m_productionService;
+    std::shared_ptr<ReleaseService>      m_releaseService;
+    std::unique_ptr<SampleController>    m_sampleController;
+    std::unique_ptr<OrderController>     m_orderController;
+    std::unique_ptr<ApprovalController>  m_approvalController;
+    std::unique_ptr<ProductionController> m_productionController;
+    std::unique_ptr<ReleaseController>   m_releaseController;
+    MainView                             m_view;
 
     int  readChoice() const;
     void handleChoice(int choice);

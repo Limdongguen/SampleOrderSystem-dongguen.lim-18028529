@@ -1,6 +1,5 @@
 #include "controller/ApprovalController.h"
 #include "util/ConsoleHelper.h"
-#include <iostream>
 #include <string>
 
 namespace {
@@ -57,7 +56,7 @@ bool ApprovalController::readApproveOrReject() const {
         input = ConsoleHelper::readLine();
         if (input == "Y" || input == "y") return true;
         if (input == "N" || input == "n") return false;
-        std::cout << "  [Y] 또는 [N]을 입력하세요 >> ";
+        m_view.printApproveRejectRetry();
     }
 }
 

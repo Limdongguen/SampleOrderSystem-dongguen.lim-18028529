@@ -1,0 +1,11 @@
+[
+  {
+    "createdAt": "2026-05-08 14:44:58",
+    "customerName": "dong",
+    "orderId": "ORD-20260508-0001",
+    "quantity": 100,
+    "sampleId": "S-001",
+    "status": "RESERVED",
+    "updatedAt": "2026-05-08 14:44:58"
+  }
+]

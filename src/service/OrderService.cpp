@@ -14,7 +14,7 @@ OrderService::OrderService(const std::string& sampleFilePath,
                            const std::string& productionFilePath)
     : m_sampleRepo(std::make_unique<SampleRepository>(sampleFilePath))
     , m_orderRepo(std::make_unique<OrderRepository>(orderFilePath))
-    , m_productionService(std::make_unique<ProductionService>(productionFilePath))
+    , m_productionService(std::make_unique<ProductionService>(productionFilePath, sampleFilePath, orderFilePath))
 {
 }
 
@@ -107,7 +107,14 @@ std::vector<Order> OrderService::getReservedOrders() const {
 }
 
 std::vector<Order> OrderService::getAllOrders() const {
-    return m_orderRepo->findAll();
+    auto all = m_orderRepo->findAll();
+    std::vector<Order> result;
+    for (const auto& o : all) {
+        if (o.status != OrderStatus::REJECTED) {
+            result.push_back(o);
+        }
+    }
+    return result;
 }
 
 bool OrderService::isValidQuantity(int quantity) const {

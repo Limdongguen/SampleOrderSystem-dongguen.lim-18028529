@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"C:\\\\reviewer\\\\SampleOrderSystem\" -Recurse -Directory)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Sort-Object)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\reviewer\\\\SampleOrderSystem\\\\src\" -Recurse -File | Where-Object {$_.Extension -in @\\('.h', '.cpp'\\)} | ForEach-Object { \"{0,-60} {1:8}\" -f $_.FullName, $_.Length })",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\reviewer\\\\SampleOrderSystem\" -Force | Where-Object { $_.PSIsContainer -eq $false } | Select-Object Name)",
+      "PowerShell(Test-Path *)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\reviewer\\\\SampleOrderSystem\\\\src\" -Recurse | Where-Object { -not $_.PSIsContainer } | Group-Object Directory | ForEach-Object { Write-Host \"=== $\\($_.Name\\) ===\" ; $_.Group | ForEach-Object { Write-Host \"  $\\($_.Name\\)\" } })",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\reviewer\\\\SampleOrderSystem\\\\tests\" -Recurse | Where-Object { -not $_.PSIsContainer } | Select-Object Name)"
+    ]
+  }
+}

@@ -12,6 +12,7 @@ public:
     void printStockInfo(const Sample& sample, int quantity) const;
     void printProductionInfo(const ProductionJob& job) const;
     void printApproveRejectPrompt() const;
+    void printApproveRejectRetry() const;
     void printApproveSuccess(const std::string& orderId, const std::string& status) const;
     void printRejectSuccess(const std::string& orderId) const;
     void printError(const std::string& message) const;

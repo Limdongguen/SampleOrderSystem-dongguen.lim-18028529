@@ -17,7 +17,6 @@ int ConsoleHelper::readInt(int minVal, int maxVal) {
         std::cin >> value;
         if (std::cin.fail() || value < minVal || value > maxVal) {
             clearInputStream();
-            std::cout << "  [" << minVal << "~" << maxVal << "] 범위의 숫자를 입력하세요: ";
         } else {
             std::cin.ignore(kStreamMax, '\n');
             return value;
@@ -37,7 +36,6 @@ double ConsoleHelper::readDouble() {
         std::cin >> value;
         if (std::cin.fail()) {
             clearInputStream();
-            std::cout << "  유효한 숫자를 입력하세요: ";
         } else {
             std::cin.ignore(kStreamMax, '\n');
             return value;

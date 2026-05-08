@@ -212,9 +212,13 @@ TEST_F(OrderServiceTest, Reject_ReservedOrder_StatusBecomesRejected) {
     bool rejected = orderService->reject(orderId);
     EXPECT_TRUE(rejected);
 
+    // REJECTED 주문은 getAllOrders()에서 제외되므로 size == 0
     auto all = orderService->getAllOrders();
-    ASSERT_EQ(all.size(), 1u);
-    EXPECT_EQ(all[0].status, OrderStatus::REJECTED);
+    EXPECT_EQ(all.size(), 0u);
+
+    // REJECTED 주문은 RESERVED 목록에서도 제외됨
+    auto afterReserved = orderService->getReservedOrders();
+    EXPECT_TRUE(afterReserved.empty());
 }
 
 TEST_F(OrderServiceTest, Reject_OrderNotInReservedList) {
