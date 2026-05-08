@@ -1,6 +1,5 @@
 #include "controller/SampleController.h"
 #include "util/ConsoleHelper.h"
-#include <iostream>
 
 namespace {
     constexpr int kMenuMin  = 0;
@@ -30,13 +29,13 @@ void SampleController::run() {
 void SampleController::handleRegister() {
     m_view.printRegisterForm();
 
-    std::cout << "이름: ";
+    m_view.printNamePrompt();
     std::string name = ConsoleHelper::readLine();
 
-    std::cout << "평균 생산시간 (min/ea): ";
+    m_view.printAvgProdTimePrompt();
     double avgProdTime = ConsoleHelper::readDouble();
 
-    std::cout << "수율 (0.0 ~ 1.0): ";
+    m_view.printYieldPrompt();
     double yield = ConsoleHelper::readDouble();
 
     if (m_service->registerSample(name, avgProdTime, yield)) {

@@ -3,7 +3,9 @@
 #include <iomanip>
 
 namespace {
-    constexpr int kColWidth = 12;
+    constexpr int kColWidth      = 12;
+    constexpr int kNameColWidth  = 20;
+    constexpr int kSeparatorLen  = 64;
 }
 
 void SampleView::printSubMenu() const {
@@ -22,20 +24,20 @@ void SampleView::printList(const std::vector<Sample>& samples) const {
     }
     std::cout << "\n"
               << std::left
-              << std::setw(kColWidth) << "ID"
-              << std::setw(20)        << "이름"
-              << std::setw(kColWidth) << "평균생산시간"
-              << std::setw(kColWidth) << "수율"
-              << std::setw(kColWidth) << "재고"
+              << std::setw(kColWidth)     << "ID"
+              << std::setw(kNameColWidth) << "이름"
+              << std::setw(kColWidth)     << "평균생산시간"
+              << std::setw(kColWidth)     << "수율"
+              << std::setw(kColWidth)     << "재고"
               << "\n";
-    std::cout << std::string(64, '-') << "\n";
+    std::cout << std::string(kSeparatorLen, '-') << "\n";
     for (const auto& s : samples) {
         std::cout << std::left
-                  << std::setw(kColWidth) << s.sampleId
-                  << std::setw(20)        << s.name
-                  << std::setw(kColWidth) << s.avgProdTime
-                  << std::setw(kColWidth) << s.yield
-                  << std::setw(kColWidth) << s.stock
+                  << std::setw(kColWidth)     << s.sampleId
+                  << std::setw(kNameColWidth) << s.name
+                  << std::setw(kColWidth)     << s.avgProdTime
+                  << std::setw(kColWidth)     << s.yield
+                  << std::setw(kColWidth)     << s.stock
                   << "\n";
     }
 }
@@ -55,6 +57,18 @@ void SampleView::printRegisterSuccess(const std::string& sampleId) const {
 
 void SampleView::printRegisterForm() const {
     std::cout << "\n--- 시료 등록 ---\n";
+}
+
+void SampleView::printNamePrompt() const {
+    std::cout << "이름: ";
+}
+
+void SampleView::printAvgProdTimePrompt() const {
+    std::cout << "평균 생산시간 (min/ea): ";
+}
+
+void SampleView::printYieldPrompt() const {
+    std::cout << "수율 (0.0 ~ 1.0): ";
 }
 
 void SampleView::printSearchPrompt() const {

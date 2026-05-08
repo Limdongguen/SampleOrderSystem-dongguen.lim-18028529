@@ -13,4 +13,7 @@ public:
     void printNotFound() const;
     void printError(const std::string& message) const;
     void printSubMenu() const;
+    void printNamePrompt() const;
+    void printAvgProdTimePrompt() const;
+    void printYieldPrompt() const;
 };
