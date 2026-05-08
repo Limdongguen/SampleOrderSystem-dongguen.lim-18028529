@@ -12,22 +12,22 @@
 ## 체크리스트
 
 ### SampleRepository
-- [ ] `src/repository/SampleRepository.h/.cpp`
+- [x] `src/repository/SampleRepository.h/.cpp`
   - 생성자에서 `JsonFileManager::load("data/samples.json")` 호출
   - `add(Sample)`, `findAll()`, `findById(id)`, `findByName(keyword)`, `save()` 구현
   - `save()` 는 `JsonFileManager::save()` 호출
 
 ### SampleService
-- [ ] `src/service/SampleService.h/.cpp`
+- [x] `src/service/SampleService.h/.cpp`
   - `registerSample(name, avgProdTime, yield)` — ID 자동 생성, 중복 이름 검증
   - `getAllSamples()` — 전체 목록 반환
   - `searchByName(keyword)` — 부분 일치 검색
   - `getSampleById(id)` — 없으면 `std::nullopt` 반환
 
 ### SampleView & SampleController
-- [ ] `src/view/SampleView.h/.cpp` — `printList()`, `printSample()`, `printRegisterSuccess()`, 오류 메시지 출력
-- [ ] `src/controller/SampleController.h/.cpp` — 서브메뉴 `[1]등록 [2]목록 [3]검색 [0]뒤로`
-- [ ] `MainController`에서 `[1]` 선택 시 `SampleController::run()` 연결
+- [x] `src/view/SampleView.h/.cpp` — `printList()`, `printSample()`, `printRegisterSuccess()`, 오류 메시지 출력
+- [x] `src/controller/SampleController.h/.cpp` — 서브메뉴 `[1]등록 [2]목록 [3]검색 [0]뒤로`
+- [x] `MainController`에서 `[1]` 선택 시 `SampleController::run()` 연결
 
 ### 입력 검증 규칙
 - 수율: `0.0 < yield <= 1.0`
@@ -35,11 +35,11 @@
 - 이름: 빈 문자열 불허
 
 ### 단위 테스트 (gmock, Debug|x64 전용)
-- [ ] `tests/SampleRepositoryTest.cpp`
+- [x] `tests/SampleRepositoryTest.cpp`
   - add 후 findAll에 포함, findById 성공/실패, findByName 부분일치, save 후 재로드
-- [ ] `tests/SampleServiceTest.cpp`
+- [x] `tests/SampleServiceTest.cpp`
   - 정상 등록, 중복 이름 거절, yield 범위 위반, avgProdTime 0 이하, 부분일치 검색
-- [ ] vcxproj에 테스트 파일 2개 추가
+- [x] vcxproj에 테스트 파일 2개 추가
 
 ---
 
