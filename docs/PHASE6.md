@@ -71,7 +71,7 @@ void MonitoringView::clearCountdown() const {
 
 ### MonitoringService
 
-- [ ] `src/service/MonitoringService.h/.cpp`
+- [x] `src/service/MonitoringService.h/.cpp`
   - `getOrderSummary()` — `OrderSummary` 구조체 반환 (REJECTED 제외)
     ```cpp
     struct OrderSummary {
@@ -92,7 +92,7 @@ void MonitoringView::clearCountdown() const {
 
 ### MonitoringView & MonitoringController
 
-- [ ] `src/view/MonitoringView.h/.cpp`
+- [x] `src/view/MonitoringView.h/.cpp`
   - **주문량 확인:** 상태별 건수 표
     ```
     상태         건수
@@ -111,7 +111,7 @@ void MonitoringView::clearCountdown() const {
   - `printCountdown(int seconds)` — `\r` 덮어쓰기 카운트다운
   - `printCountdown(-1)` 호출 시 `clearCountdown()` 동작 (줄 지우기)
 
-- [ ] `src/controller/MonitoringController.h/.cpp`
+- [x] `src/controller/MonitoringController.h/.cpp`
   - **멤버**: `MonitoringService`, `ProductionService` (두 서비스 모두 보유)
   - `run()` — 서브메뉴: `[1]주문량 [2]재고량 [0]뒤로`
   - `runOrderSummary()` — `runRealTime()` 패턴으로 1분 자동 갱신
@@ -120,8 +120,8 @@ void MonitoringView::clearCountdown() const {
 
 ### 메인 메뉴 현황 요약
 
-- [ ] `MainController::run()` 루프 최상단에서 `m_productionService->tickCheck()` 호출
-- [ ] `MainView::printMenu()` 헤더에 현황 요약 출력 (뷰가 직접 계산하지 않음 — Controller가 데이터 전달)
+- [x] `MainController::run()` 루프 최상단에서 `m_productionService->tickCheck()` 호출
+- [x] `MainView::printMenu()` 헤더에 현황 요약 출력 (뷰가 직접 계산하지 않음 — Controller가 데이터 전달)
   ```
   ╔══════════════════════════════════════
   ║  S-Semi 시료 생산주문관리 시스템
@@ -131,7 +131,7 @@ void MonitoringView::clearCountdown() const {
   ║  [1] 시료 관리
   ...
   ```
-- [ ] `MainView::printMenu(const MenuSummary& s)` 오버로드 추가
+- [x] `MainView::printMenu(const MenuSummary& s)` 오버로드 추가
   ```cpp
   struct MenuSummary {
       std::string currentTime;
@@ -139,18 +139,18 @@ void MonitoringView::clearCountdown() const {
       int orderCount;  int producingCount;
   };
   ```
-- [ ] `MainController`가 `MonitoringService`·`SampleService`·`OrderService`에서 요약 데이터 수집 후 `printMenu(summary)` 호출
+- [x] `MainController`가 `MonitoringService`·`SampleService`·`OrderService`에서 요약 데이터 수집 후 `printMenu(summary)` 호출
 
 ### UI 일관성 & 예외 처리
 
-- [ ] 모든 메뉴에서 범위 벗어난 입력 시 재요청 (`ConsoleHelper::readInt` 이미 처리)
-- [ ] 빈 목록일 때 "데이터 없음" 안내 메시지 통일
-- [ ] 목록 5건 초과 시 페이지네이션 (`[N]다음 [P]이전 [0]뒤로`)
+- [x] 모든 메뉴에서 범위 벗어난 입력 시 재요청 (`ConsoleHelper::readInt` 이미 처리)
+- [x] 빈 목록일 때 "데이터 없음" 안내 메시지 통일
+- [x] 목록 5건 초과 시 페이지네이션 (`[N]다음 [P]이전 [0]뒤로`)
   - `ConsoleHelper::paginate(vector, pageSize, printFn)` 헬퍼 추가
 
 ### 단위 테스트
 
-- [ ] `tests/MonitoringServiceTest.cpp`
+- [x] `tests/MonitoringServiceTest.cpp`
   - REJECTED 주문이 `getOrderSummary()` 집계에서 제외됨
   - 재고 여유/부족/고갈 경계값 (stock=activeSum → 여유, stock=activeSum-1 → 부족, stock=0 → 고갈)
   - `remainRatio` 계산 정확성
