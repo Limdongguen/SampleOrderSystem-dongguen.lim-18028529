@@ -190,6 +190,10 @@
     <ClCompile Include="$(ProjectDir)..\src\view\ReleaseView.cpp" />
     <ClCompile Include="$(ProjectDir)..\src\controller\ProductionController.cpp" />
     <ClCompile Include="$(ProjectDir)..\src\controller\ReleaseController.cpp" />
+    <ClCompile Include="$(ProjectDir)..\src\service\MonitoringService.cpp" />
+    <ClCompile Include="$(ProjectDir)..\tests\MonitoringServiceTest.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'!='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
