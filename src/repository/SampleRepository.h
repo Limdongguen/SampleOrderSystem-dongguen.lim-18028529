@@ -12,6 +12,7 @@ public:
     std::vector<Sample> findAll() const;
     std::optional<Sample> findById(const std::string& id) const;
     std::vector<Sample> findByName(const std::string& keyword) const;
+    void update(const Sample& sample);
     void save() const;
 
 private:
