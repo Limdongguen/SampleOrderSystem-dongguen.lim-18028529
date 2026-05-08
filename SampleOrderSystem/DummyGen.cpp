@@ -1,65 +1,95 @@
 #include "DummyGen.h"
 #include "util/JsonFileManager.h"
 #include "util/TimeUtil.h"
-#include "model/Sample.h"
-#include "model/Order.h"
-#include "model/ProductionJob.h"
-#include "model/Enums.h"
 #include <nlohmann/json.hpp>
 #include <iostream>
-#include <vector>
 #include <cmath>
+#include <iomanip>
+#include <sstream>
 
 namespace {
-    // 시연용 avgProdTime 범위 (분): 0.05 ~ 0.20
-    constexpr double kMinAvgProdTime = 0.05;
-    constexpr double kMaxAvgProdTime = 0.20;
-    // 수율 범위
-    constexpr double kMinYield = 0.85;
-    constexpr double kMaxYield = 0.98;
-    // RUNNING Job의 estimatedEndTime 오프셋 (분)
-    constexpr double kRunningJobOffsetMin = 2.0;
-    // 생산량 공식 yield 버퍼
-    constexpr double kYieldBuffer = 0.9;
+    constexpr int    kSampleCount          = 10;
+    constexpr int    kOrderCount           = 20;
+    constexpr int    kJobCount             = 3;
+    constexpr double kRunningJobOffsetMin  = 2.0;  // RUNNING Job의 완료 예정까지 (분)
+    constexpr double kYieldBuffer          = 0.9;
+    constexpr int    kSampleIdPadWidth     = 3;
+    constexpr int    kOrderSeqPadWidth     = 4;
+    const std::string kOrderDatePrefix     = "ORD-20260508-";
+    const std::string kDummyTimestamp      = "2026-05-08 09:00:00";
 
-    // 10종 실제 반도체 소재명
-    const std::vector<std::string> kSampleNames = {
-        "실리콘 웨이퍼-8인치",
-        "GaN 에피택셜-4인치",
-        "SiC 파워기판-6인치",
-        "포토레지스트-PR7",
-        "산화막 웨이퍼-SiO2",
-        "HfO2 게이트유전체",
-        "Cu 배선재료",
-        "Low-k 절연막",
-        "Si3N4 질화막",
+    const std::string kSampleNames[kSampleCount] = {
+        "실리콘 웨이퍼-8인치", "GaN 에피택셜-4인치", "SiC 파워기판-6인치",
+        "포토레지스트-PR7",    "산화막 웨이퍼-SiO2", "HfO2 게이트유전체",
+        "Cu 배선재료",         "Low-k 절연막",        "Si3N4 질화막",
         "Al2O3 ALD막"
     };
-
-    // avgProdTime 값 (10개 고정, 0.05 ~ 0.20 범위)
-    const std::vector<double> kAvgProdTimes = {
-        0.10, 0.15, 0.20, 0.05, 0.12,
-        0.08, 0.18, 0.07, 0.13, 0.16
+    const double kAvgProdTimes[kSampleCount] = {
+        0.10, 0.15, 0.20, 0.05, 0.12, 0.08, 0.18, 0.07, 0.13, 0.16
     };
-
-    // yield 값 (10개 고정, 0.85 ~ 0.98 범위)
-    const std::vector<double> kYields = {
-        0.92, 0.88, 0.95, 0.85, 0.97,
-        0.90, 0.98, 0.86, 0.93, 0.91
+    const double kYieldValues[kSampleCount] = {
+        0.92, 0.88, 0.95, 0.85, 0.97, 0.90, 0.98, 0.86, 0.93, 0.91
     };
-
-    // 초기 재고
-    const std::vector<int> kStocks = {
-        500, 300, 0,   150, 200,
-        80,  0,   400, 250, 100
+    const int kStocks[kSampleCount] = {
+        500, 300, 0, 150, 200, 80, 0, 400, 250, 100
     };
 }
+
+// ─── 헬퍼 ──────────────────────────────────────────────────────────────────
+
+std::string DummyGen::makeSampleId(int index) {
+    // index: 0-based → "S-001" ~ "S-010"
+    std::ostringstream oss;
+    oss << "S-" << std::setfill('0') << std::setw(kSampleIdPadWidth) << (index + 1);
+    return oss.str();
+}
+
+std::string DummyGen::makeOrderId(int seq) {
+    std::ostringstream oss;
+    oss << kOrderDatePrefix << std::setfill('0') << std::setw(kOrderSeqPadWidth) << seq;
+    return oss.str();
+}
+
+Order DummyGen::buildOrder(
+    const std::string& sampleId, const std::string& customerName,
+    int quantity, OrderStatus status, const std::string& orderId,
+    const std::string& timestamp)
+{
+    Order o;
+    o.orderId      = orderId;
+    o.sampleId     = sampleId;
+    o.customerName = customerName;
+    o.quantity     = quantity;
+    o.status       = status;
+    o.createdAt    = timestamp;
+    o.updatedAt    = timestamp;
+    return o;
+}
+
+ProductionJob DummyGen::buildJob(
+    const std::string& orderId, const std::string& sampleId,
+    int shortage, double yield, double avgProdTime,
+    JobStatus status, const std::string& estimatedEndTime)
+{
+    int actualProduction = (int)std::ceil(shortage / (yield * kYieldBuffer));
+    ProductionJob j;
+    j.jobId            = "JOB-" + orderId;
+    j.orderId          = orderId;
+    j.sampleId         = sampleId;
+    j.shortage         = shortage;
+    j.actualProduction = actualProduction;
+    j.totalTime        = avgProdTime * actualProduction;
+    j.status           = status;
+    j.estimatedEndTime = estimatedEndTime;
+    return j;
+}
+
+// ─── 생성 메서드 ────────────────────────────────────────────────────────────
 
 DummyGen::DummyGen(
     const std::string& samplesPath,
     const std::string& ordersPath,
-    const std::string& productionPath
-)
+    const std::string& productionPath)
     : m_samplesPath(samplesPath)
     , m_ordersPath(ordersPath)
     , m_productionPath(productionPath)
@@ -75,12 +105,12 @@ bool DummyGen::generate() {
 
 void DummyGen::generateSamples() {
     std::vector<Sample> samples;
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < kSampleCount; ++i) {
         Sample s;
-        s.sampleId   = "S-" + std::string(2 - std::to_string(i+1).size(), '0') + std::to_string(i+1);
+        s.sampleId   = makeSampleId(i);
         s.name        = kSampleNames[i];
         s.avgProdTime = kAvgProdTimes[i];
-        s.yield       = kYields[i];
+        s.yield       = kYieldValues[i];
         s.stock       = kStocks[i];
         samples.push_back(s);
     }
@@ -89,68 +119,31 @@ void DummyGen::generateSamples() {
 }
 
 void DummyGen::generateOrders() {
-    // 상태 분포: RESERVED 3, CONFIRMED 5, PRODUCING 3, RELEASED 8, REJECTED 1
-    // 총 20건
-    struct OrderSpec {
-        std::string sampleId;
-        std::string customerName;
-        int         quantity;
-        OrderStatus status;
-        std::string orderId;
-        std::string createdAt;
-        std::string updatedAt;
+    // 상태 분포: RESERVED 3, CONFIRMED 5, PRODUCING 3, RELEASED 8, REJECTED 1 (총 20건)
+    const std::string& ts = kDummyTimestamp;
+    using OS = OrderStatus;
+    std::vector<Order> orders = {
+        buildOrder("S-001", "삼성전자",    100, OS::RESERVED,  makeOrderId(1),  ts),
+        buildOrder("S-002", "SK하이닉스",   50, OS::RESERVED,  makeOrderId(2),  ts),
+        buildOrder("S-003", "LG이노텍",     80, OS::RESERVED,  makeOrderId(3),  ts),
+        buildOrder("S-004", "인텔코리아",  150, OS::CONFIRMED, makeOrderId(4),  ts),
+        buildOrder("S-005", "TSMC한국",    200, OS::CONFIRMED, makeOrderId(5),  ts),
+        buildOrder("S-006", "마이크론",     60, OS::CONFIRMED, makeOrderId(6),  ts),
+        buildOrder("S-007", "퀄컴코리아",   40, OS::CONFIRMED, makeOrderId(7),  ts),
+        buildOrder("S-008", "AMD코리아",    90, OS::CONFIRMED, makeOrderId(8),  ts),
+        buildOrder("S-003", "엔비디아",    500, OS::PRODUCING, makeOrderId(9),  ts),
+        buildOrder("S-006", "아날로그D",   300, OS::PRODUCING, makeOrderId(10), ts),
+        buildOrder("S-009", "TI코리아",    200, OS::PRODUCING, makeOrderId(11), ts),
+        buildOrder("S-001", "한화에어로",  120, OS::RELEASED,  makeOrderId(12), ts),
+        buildOrder("S-002", "두산전자",     70, OS::RELEASED,  makeOrderId(13), ts),
+        buildOrder("S-004", "현대모비스",   85, OS::RELEASED,  makeOrderId(14), ts),
+        buildOrder("S-005", "LG전자",      110, OS::RELEASED,  makeOrderId(15), ts),
+        buildOrder("S-007", "삼성SDI",      45, OS::RELEASED,  makeOrderId(16), ts),
+        buildOrder("S-008", "SK이노베이션",130, OS::RELEASED,  makeOrderId(17), ts),
+        buildOrder("S-009", "코오롱인더",   95, OS::RELEASED,  makeOrderId(18), ts),
+        buildOrder("S-010", "OCI",          75, OS::RELEASED,  makeOrderId(19), ts),
+        buildOrder("S-001", "중소벤처A",   999, OS::REJECTED,  makeOrderId(20), ts),
     };
-
-    const std::string kBaseTime = "2026-05-08 09:00:00";
-
-    // orderId 형식: ORD-YYYYMMDD-NNNN
-    auto makeOrderId = [](int seq) -> std::string {
-        std::string seqStr = std::to_string(seq);
-        while (seqStr.size() < 4) seqStr = "0" + seqStr;
-        return "ORD-20260508-" + seqStr;
-    };
-
-    std::vector<OrderSpec> specs = {
-        // RESERVED 3건
-        { "S-001", "삼성전자",  100, OrderStatus::RESERVED,  makeOrderId(1),  kBaseTime, kBaseTime },
-        { "S-002", "SK하이닉스", 50, OrderStatus::RESERVED,  makeOrderId(2),  kBaseTime, kBaseTime },
-        { "S-003", "LG이노텍",   80, OrderStatus::RESERVED,  makeOrderId(3),  kBaseTime, kBaseTime },
-        // CONFIRMED 5건
-        { "S-004", "인텔코리아", 150, OrderStatus::CONFIRMED, makeOrderId(4),  kBaseTime, kBaseTime },
-        { "S-005", "TSMC한국",   200, OrderStatus::CONFIRMED, makeOrderId(5),  kBaseTime, kBaseTime },
-        { "S-006", "마이크론",    60, OrderStatus::CONFIRMED, makeOrderId(6),  kBaseTime, kBaseTime },
-        { "S-007", "퀄컴코리아",  40, OrderStatus::CONFIRMED, makeOrderId(7),  kBaseTime, kBaseTime },
-        { "S-008", "AMD코리아",   90, OrderStatus::CONFIRMED, makeOrderId(8),  kBaseTime, kBaseTime },
-        // PRODUCING 3건
-        { "S-003", "엔비디아",   500, OrderStatus::PRODUCING, makeOrderId(9),  kBaseTime, kBaseTime },
-        { "S-006", "아날로그D",  300, OrderStatus::PRODUCING, makeOrderId(10), kBaseTime, kBaseTime },
-        { "S-009", "TI코리아",   200, OrderStatus::PRODUCING, makeOrderId(11), kBaseTime, kBaseTime },
-        // RELEASED 8건
-        { "S-001", "한화에어로", 120, OrderStatus::RELEASED,  makeOrderId(12), kBaseTime, kBaseTime },
-        { "S-002", "두산전자",    70, OrderStatus::RELEASED,  makeOrderId(13), kBaseTime, kBaseTime },
-        { "S-004", "현대모비스",  85, OrderStatus::RELEASED,  makeOrderId(14), kBaseTime, kBaseTime },
-        { "S-005", "LG전자",     110, OrderStatus::RELEASED,  makeOrderId(15), kBaseTime, kBaseTime },
-        { "S-007", "삼성SDI",     45, OrderStatus::RELEASED,  makeOrderId(16), kBaseTime, kBaseTime },
-        { "S-008", "SK이노베이션",130, OrderStatus::RELEASED, makeOrderId(17), kBaseTime, kBaseTime },
-        { "S-009", "코오롱인더",  95, OrderStatus::RELEASED,  makeOrderId(18), kBaseTime, kBaseTime },
-        { "S-010", "OCI",         75, OrderStatus::RELEASED,  makeOrderId(19), kBaseTime, kBaseTime },
-        // REJECTED 1건
-        { "S-001", "중소벤처A",  999, OrderStatus::REJECTED,  makeOrderId(20), kBaseTime, kBaseTime },
-    };
-
-    std::vector<Order> orders;
-    for (const auto& sp : specs) {
-        Order o;
-        o.orderId      = sp.orderId;
-        o.sampleId     = sp.sampleId;
-        o.customerName = sp.customerName;
-        o.quantity     = sp.quantity;
-        o.status       = sp.status;
-        o.createdAt    = sp.createdAt;
-        o.updatedAt    = sp.updatedAt;
-        orders.push_back(o);
-    }
-
     nlohmann::json j = orders;
     JsonFileManager::save(m_ordersPath, j);
 }
@@ -158,86 +151,25 @@ void DummyGen::generateOrders() {
 void DummyGen::generateProductionJobs() {
     // PRODUCING 주문 3건과 1:1 매핑 (orderId 9, 10, 11)
     // 1개 RUNNING + 2개 WAITING
-    // RUNNING Job: estimatedEndTime = 현재 + 2분
-    auto makeJobId = [](const std::string& orderId) -> std::string {
-        return "JOB-" + orderId;
+    const std::string kRunningEnd =
+        TimeUtil::addMinutes(TimeUtil::nowString(), kRunningJobOffsetMin);
+
+    // S-003: stock=0,  qty=500 → shortage=500, yield=0.95, avgProdTime=0.20
+    // S-006: stock=80, qty=300 → shortage=220, yield=0.90, avgProdTime=0.08
+    // S-009: stock=0,  qty=200 → shortage=200, yield=0.93, avgProdTime=0.13
+    std::vector<ProductionJob> jobs = {
+        buildJob(makeOrderId(9),  "S-003", 500, 0.95, 0.20, JobStatus::RUNNING,  kRunningEnd),
+        buildJob(makeOrderId(10), "S-006", 220, 0.90, 0.08, JobStatus::WAITING,  ""),
+        buildJob(makeOrderId(11), "S-009", 200, 0.93, 0.13, JobStatus::WAITING,  ""),
     };
-
-    const std::string kRunningEnd = TimeUtil::addMinutes(TimeUtil::nowString(), kRunningJobOffsetMin);
-
-    // 시료 수율/avgProdTime 참조
-    // S-003: yield=0.95, avgProdTime=0.20, stock=0
-    // S-006: yield=0.90, avgProdTime=0.08, stock=80
-    // S-009: yield=0.93, avgProdTime=0.13, stock=250
-
-    // shortage = quantity - stock
-    // actualProduction = ceil(shortage / (yield * 0.9))
-    auto calcActual = [](int shortage, double yield) -> int {
-        return (int)std::ceil(shortage / (yield * kYieldBuffer));
-    };
-
-    // ORD-20260508-0009: S-003, qty=500, stock=0
-    int sh9 = 500 - 0;   // shortage=500
-    int ap9 = calcActual(sh9, 0.95);
-    double tt9 = 0.20 * ap9;
-
-    // ORD-20260508-0010: S-006, qty=300, stock=80
-    int sh10 = 300 - 80; // shortage=220
-    int ap10 = calcActual(sh10, 0.90);
-    double tt10 = 0.08 * ap10;
-
-    // ORD-20260508-0011: S-009, qty=200, stock=250
-    // stock >= qty이지만 PRODUCING으로 설정 (더미 데이터 시나리오)
-    int sh11 = 200 - 0; // 시연 목적 shortage
-    int ap11 = calcActual(sh11, 0.93);
-    double tt11 = 0.13 * ap11;
-
-    std::vector<ProductionJob> jobs;
-
-    // RUNNING job (첫 번째)
-    ProductionJob job1;
-    job1.jobId            = makeJobId("ORD-20260508-0009");
-    job1.orderId          = "ORD-20260508-0009";
-    job1.sampleId         = "S-003";
-    job1.shortage         = sh9;
-    job1.actualProduction = ap9;
-    job1.totalTime        = tt9;
-    job1.status           = JobStatus::RUNNING;
-    job1.estimatedEndTime = kRunningEnd;
-    jobs.push_back(job1);
-
-    // WAITING job 1 (두 번째)
-    ProductionJob job2;
-    job2.jobId            = makeJobId("ORD-20260508-0010");
-    job2.orderId          = "ORD-20260508-0010";
-    job2.sampleId         = "S-006";
-    job2.shortage         = sh10;
-    job2.actualProduction = ap10;
-    job2.totalTime        = tt10;
-    job2.status           = JobStatus::WAITING;
-    job2.estimatedEndTime = "";
-    jobs.push_back(job2);
-
-    // WAITING job 2 (세 번째)
-    ProductionJob job3;
-    job3.jobId            = makeJobId("ORD-20260508-0011");
-    job3.orderId          = "ORD-20260508-0011";
-    job3.sampleId         = "S-009";
-    job3.shortage         = sh11;
-    job3.actualProduction = ap11;
-    job3.totalTime        = tt11;
-    job3.status           = JobStatus::WAITING;
-    job3.estimatedEndTime = "";
-    jobs.push_back(job3);
-
     nlohmann::json j = jobs;
     JsonFileManager::save(m_productionPath, j);
 }
 
 void DummyGen::printSummary() const {
-    std::cout << "\n=== 더미 데이터 생성 완료 ===\n";
-    std::cout << "  시료:       10종 -> " << m_samplesPath     << "\n";
-    std::cout << "  주문:       20건 -> " << m_ordersPath      << "\n";
-    std::cout << "  생산 작업:   3건 -> " << m_productionPath  << "\n";
-    std::cout << "  (RUNNING 1개 / WAITING 2개)\n\n";
+    std::cout << "\n=== 더미 데이터 생성 완료 ===\n"
+              << "  시료:       " << kSampleCount << "종 -> " << m_samplesPath    << "\n"
+              << "  주문:       " << kOrderCount  << "건 -> " << m_ordersPath     << "\n"
+              << "  생산 작업:  " << kJobCount    << "건 -> " << m_productionPath << "\n"
+              << "  (RUNNING 1개 / WAITING 2개)\n\n";
 }
