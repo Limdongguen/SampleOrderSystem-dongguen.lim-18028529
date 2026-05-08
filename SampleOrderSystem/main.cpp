@@ -1,4 +1,5 @@
 #include <iostream>
+#include <windows.h>
 
 #ifdef _DEBUG
 #include "gmock/gmock.h"
@@ -7,6 +8,8 @@
 #ifdef _DEBUG
 
 int main() {
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
     ::testing::InitGoogleMock();
     return RUN_ALL_TESTS();
 }
