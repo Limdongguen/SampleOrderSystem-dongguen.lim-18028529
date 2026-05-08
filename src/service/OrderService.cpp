@@ -1,9 +1,6 @@
 #include "service/OrderService.h"
 #include "util/IdGenerator.h"
-#include <chrono>
-#include <ctime>
-#include <iomanip>
-#include <sstream>
+#include "util/TimeUtil.h"
 
 namespace {
     constexpr int kQuantityMin = 1;
@@ -122,15 +119,5 @@ bool OrderService::isValidQuantity(int quantity) const {
 }
 
 std::string OrderService::currentTimestamp() {
-    auto now = std::chrono::system_clock::now();
-    std::time_t t = std::chrono::system_clock::to_time_t(now);
-    std::tm tm_val{};
-#ifdef _WIN32
-    localtime_s(&tm_val, &t);
-#else
-    localtime_r(&t, &tm_val);
-#endif
-    std::ostringstream oss;
-    oss << std::put_time(&tm_val, "%Y-%m-%d %H:%M:%S");
-    return oss.str();
+    return TimeUtil::nowString();
 }
