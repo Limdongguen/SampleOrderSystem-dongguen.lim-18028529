@@ -46,6 +46,26 @@ void MonitoringController::runStockStatus() {
     runRealTime(false);
 }
 
+// pollKeyUntilDeadline: deadline까지 키 입력을 폴링. 뒤로가기('0')이면 true 반환 (즉시 종료).
+// 즉시갱신('r'/'R') 키 입력 시 false 반환 (루프 재시작). deadline 도달 시 false 반환.
+bool MonitoringController::pollKeyUntilDeadline(
+        std::chrono::steady_clock::time_point deadline) {
+    using Clock = std::chrono::steady_clock;
+    while (Clock::now() < deadline) {
+        if (_kbhit()) {
+            char ch = static_cast<char>(_getch());
+            if (ch == kKeyBack) { m_view.clearCountdown(); return true; }
+            if (ch == kKeyRefreshLo || ch == kKeyRefreshHi) return false;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(kPollMs));
+        int remaining = static_cast<int>(
+            std::chrono::duration_cast<std::chrono::seconds>(
+                deadline - Clock::now()).count());
+        m_view.printCountdown(remaining);
+    }
+    return false;
+}
+
 void MonitoringController::runRealTime(bool isOrder) {
     using Clock = std::chrono::steady_clock;
 
@@ -58,24 +78,8 @@ void MonitoringController::runRealTime(bool isOrder) {
         }
 
         auto deadline = Clock::now() + std::chrono::seconds(kRefreshSec);
-        bool doRefresh = false;
-
-        while (Clock::now() < deadline) {
-            if (_kbhit()) {
-                char ch = static_cast<char>(_getch());
-                if (ch == kKeyBack) { m_view.clearCountdown(); return; }
-                if (ch == kKeyRefreshLo || ch == kKeyRefreshHi) {
-                    doRefresh = true;
-                    break;
-                }
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(kPollMs));
-            int remaining = static_cast<int>(
-                std::chrono::duration_cast<std::chrono::seconds>(
-                    deadline - Clock::now()).count());
-            m_view.printCountdown(remaining);
-        }
+        bool exitRequested = pollKeyUntilDeadline(deadline);
         m_view.clearCountdown();
-        if (!doRefresh && Clock::now() >= deadline) continue;
+        if (exitRequested) return;
     }
 }

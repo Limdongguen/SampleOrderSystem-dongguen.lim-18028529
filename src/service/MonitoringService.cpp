@@ -68,5 +68,5 @@ std::string MonitoringService::determineStatus(int stock, int activeSum) {
 
 double MonitoringService::calcRemainRatio(int stock, int activeSum) {
     if (activeSum == 0) return kDefaultRemainRatio;
-    return static_cast<double>(stock) / static_cast<double>(activeSum) * 100.0;
+    return static_cast<double>(stock) / static_cast<double>(activeSum) * kDefaultRemainRatio;
 }

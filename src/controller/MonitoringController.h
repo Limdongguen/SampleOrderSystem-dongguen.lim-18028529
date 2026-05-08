@@ -2,6 +2,7 @@
 #include "service/MonitoringService.h"
 #include "service/ProductionService.h"
 #include "view/MonitoringView.h"
+#include <chrono>
 #include <memory>
 
 class MonitoringController {
@@ -17,5 +18,6 @@ private:
     void runOrderSummary();
     void runStockStatus();
     void runRealTime(bool isOrder);
+    bool pollKeyUntilDeadline(std::chrono::steady_clock::time_point deadline);
     int  readSubMenuChoice() const;
 };
