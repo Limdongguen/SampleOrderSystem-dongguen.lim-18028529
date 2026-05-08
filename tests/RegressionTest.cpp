@@ -21,6 +21,62 @@ namespace {
     const std::string kP = "data/rt_production.json";
 }
 
+namespace {
+    constexpr int kStockForRelease = 100;
+    constexpr int kStockForL3     = 200;
+}
+
+// JSON 파일에 재고 있는 단일 시료를 직접 생성하는 헬퍼
+static void writeSingleSample(const std::string& path,
+                              const std::string& sampleId,
+                              const std::string& name,
+                              int stock)
+{
+    nlohmann::json arr = nlohmann::json::array();
+    nlohmann::json s;
+    s["sampleId"]    = sampleId;
+    s["name"]        = name;
+    s["avgProdTime"] = 0.1;
+    s["yield"]       = 0.9;
+    s["stock"]       = stock;
+    arr.push_back(s);
+    std::ofstream ofs(path);
+    ofs << arr.dump(2);
+}
+
+// JSON 파일에서 특정 sampleId의 stock을 수정하는 헬퍼
+static void patchSampleStock(const std::string& path,
+                             const std::string& sampleId,
+                             int newStock)
+{
+    std::ifstream ifs(path);
+    nlohmann::json j;
+    ifs >> j;
+    ifs.close();
+    for (auto& item : j) {
+        if (item["sampleId"] == sampleId) {
+            item["stock"] = newStock;
+        }
+    }
+    std::ofstream ofs(path);
+    ofs << j.dump(2);
+}
+
+// production JSON에서 RUNNING job의 estimatedEndTime을 과거로 설정하는 헬퍼
+static void setRunningJobToPast(const std::string& path) {
+    std::ifstream ifs(path);
+    nlohmann::json j;
+    ifs >> j;
+    ifs.close();
+    for (auto& item : j) {
+        if (item["status"] == "RUNNING") {
+            item["estimatedEndTime"] = TimeUtil::addMinutes(TimeUtil::nowString(), -10.0);
+        }
+    }
+    std::ofstream ofs(path);
+    ofs << j.dump(2);
+}
+
 class RegressionTest : public ::testing::Test {
 protected:
     void SetUp() override {
@@ -317,23 +373,11 @@ TEST_F(RegressionTest, H4_RejectedOrder_ExcludedFromReserved) {
 
 TEST_F(RegressionTest, H5_Release_StockDecreased) {
     // 재고 있는 시료를 직접 생성 후 CONFIRMED 주문 출고 → 재고 차감
-    // JSON 파일에 재고=100인 시료를 직접 생성
-    {
-        nlohmann::json samples = nlohmann::json::array();
-        nlohmann::json s;
-        s["sampleId"]    = "S-001";
-        s["name"]        = "H5-웨이퍼";
-        s["avgProdTime"] = 0.1;
-        s["yield"]       = 0.9;
-        s["stock"]       = 100;
-        samples.push_back(s);
-        std::ofstream ofs(kS);
-        ofs << samples.dump(2);
-    }
+    writeSingleSample(kS, "S-001", "H5-웨이퍼", kStockForRelease);
 
     const std::string sampleId   = "S-001";
     const int         quantity   = 5;
-    const int         stockStart = 100;
+    const int         stockStart = kStockForRelease;
 
     OrderService orderSvc(kS, kO, kP);
     ASSERT_TRUE(orderSvc.reserve(sampleId, "H5-고객", quantity));
@@ -485,20 +529,8 @@ TEST_F(RegressionTest, J1_PastEndTime_TickCheckTrue_StockIncreased_OrderConfirme
     auto jobOpt = prodSvc.getCurrentJob();
     ASSERT_TRUE(jobOpt.has_value());
 
-    // JSON 파일 직접 수정으로 estimatedEndTime을 과거로 설정
-    {
-        std::ifstream ifs(kP);
-        nlohmann::json j;
-        ifs >> j;
-        ifs.close();
-        for (auto& item : j) {
-            if (item["status"] == "RUNNING") {
-                item["estimatedEndTime"] = TimeUtil::addMinutes(TimeUtil::nowString(), -10.0);
-            }
-        }
-        std::ofstream ofs(kP);
-        ofs << j.dump(2);
-    }
+    // RUNNING job의 estimatedEndTime을 과거로 설정
+    setRunningJobToPast(kP);
 
     // 재고 조회 (tickCheck 전)
     SampleService svcBefore(kS);
@@ -567,22 +599,8 @@ TEST_F(RegressionTest, J3_WaitingJob_AutoStartAfterFirstComplete) {
     ASSERT_TRUE(orderSvc.approve(reserved[0].orderId));
     ASSERT_TRUE(orderSvc.approve(reserved[1].orderId));
 
-    // 첫 번째 Job의 estimatedEndTime을 과거로 조작
-    {
-        std::ifstream ifs(kP);
-        nlohmann::json j;
-        ifs >> j;
-        ifs.close();
-        bool first = true;
-        for (auto& item : j) {
-            if (item["status"] == "RUNNING" && first) {
-                item["estimatedEndTime"] = TimeUtil::addMinutes(TimeUtil::nowString(), -10.0);
-                first = false;
-            }
-        }
-        std::ofstream ofs(kP);
-        ofs << j.dump(2);
-    }
+    // 첫 번째 RUNNING Job의 estimatedEndTime을 과거로 설정
+    setRunningJobToPast(kP);
 
     // tickCheck → 첫 번째 완료
     ProductionService prodSvc(kP, kS, kO);
@@ -633,21 +651,8 @@ TEST_F(RegressionTest, K2_StockLessThanActiveSum_Shortage) {
     ASSERT_FALSE(reserved.empty());
     ASSERT_TRUE(orderSvc.approve(reserved[0].orderId));
 
-    // 생산 Job 생성 후 stock을 수동으로 5로 설정 (0 < 10)
-    // JSON 파일 직접 수정
-    {
-        std::ifstream ifs(kS);
-        nlohmann::json j;
-        ifs >> j;
-        ifs.close();
-        for (auto& item : j) {
-            if (item["sampleId"] == sampleId) {
-                item["stock"] = 5;
-            }
-        }
-        std::ofstream ofs(kS);
-        ofs << j.dump(2);
-    }
+    // 생산 Job 생성 후 stock을 수동으로 5로 설정 (0 < activeSum=10)
+    patchSampleStock(kS, sampleId, 5);
 
     MonitoringService monSvc(kS, kO);
     auto stockList = monSvc.getStockStatusList();
@@ -674,19 +679,7 @@ TEST_F(RegressionTest, K3_StockEqualsActiveSum_Sufficient) {
     ASSERT_TRUE(orderSvc.approve(reserved[0].orderId));
 
     // stock = 10 (activeSum과 동일)
-    {
-        std::ifstream ifs(kS);
-        nlohmann::json j;
-        ifs >> j;
-        ifs.close();
-        for (auto& item : j) {
-            if (item["sampleId"] == sampleId) {
-                item["stock"] = 10;
-            }
-        }
-        std::ofstream ofs(kS);
-        ofs << j.dump(2);
-    }
+    patchSampleStock(kS, sampleId, 10);
 
     MonitoringService monSvc(kS, kO);
     auto stockList = monSvc.getStockStatusList();
@@ -706,19 +699,7 @@ TEST_F(RegressionTest, K4_StockGreaterThanActiveSum_Sufficient_ReservedExcluded)
     const std::string sampleId = found[0].sampleId;
 
     // stock=50 설정
-    {
-        std::ifstream ifs(kS);
-        nlohmann::json j;
-        ifs >> j;
-        ifs.close();
-        for (auto& item : j) {
-            if (item["sampleId"] == sampleId) {
-                item["stock"] = 50;
-            }
-        }
-        std::ofstream ofs(kS);
-        ofs << j.dump(2);
-    }
+    patchSampleStock(kS, sampleId, 50);
 
     // RESERVED 주문 100개 → activeSum에 포함되지 않아야 함
     OrderService orderSvc(kS, kO, kP);
@@ -778,23 +759,11 @@ TEST_F(RegressionTest, L2_RejectedOrder_ReleaseFails) {
 
 TEST_F(RegressionTest, L3_Release_StockDecremented) {
     // 출고 후 재고가 stock -= quantity 만큼 차감됨
-    // JSON 파일에 재고=200인 시료를 직접 생성
-    {
-        nlohmann::json samples = nlohmann::json::array();
-        nlohmann::json s;
-        s["sampleId"]    = "S-001";
-        s["name"]        = "L3-웨이퍼";
-        s["avgProdTime"] = 0.1;
-        s["yield"]       = 0.9;
-        s["stock"]       = 200;
-        samples.push_back(s);
-        std::ofstream ofs(kS);
-        ofs << samples.dump(2);
-    }
+    writeSingleSample(kS, "S-001", "L3-웨이퍼", kStockForL3);
 
     const std::string sampleId   = "S-001";
     const int         quantity   = 5;
-    const int         stockStart = 200;
+    const int         stockStart = kStockForL3;
 
     OrderService orderSvc(kS, kO, kP);
     ASSERT_TRUE(orderSvc.reserve(sampleId, "L3-고객", quantity));

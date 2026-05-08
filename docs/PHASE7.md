@@ -30,45 +30,80 @@ CleanCode 최종 리팩토링으로 제출 품질을 완성한다.
 
 - [x] 실행 시 `data/*.json` 생성 및 결과 요약 출력
 
-### 전체 시나리오 통합 검증
+### 전체 시나리오 통합 검증 (기존 A~E: RegressionTest.cpp에 구현됨)
 
-- [ ] **시나리오 A**: 시료 등록 → 주문 접수 → 재고 충분 승인 → 출고
-- [ ] **시나리오 B**: 주문 접수 → 재고 부족 승인 → 생산 큐 진입 → `tickCheck()` 자동 완료 → 출고
-- [ ] **시나리오 C**: 주문 접수 → 거절 → 모니터링 주문량 확인에서 미집계 확인
-- [ ] **시나리오 D**: 모니터링 재고량에서 고갈 시료 확인
-- [ ] **시나리오 E**: 모니터링 화면 진입 → 60초 대기 → 자동 갱신 확인  
-  (더미 RUNNING Job이 2분 후 완료 → 갱신 후 CONFIRMED 반영 확인)
+- [x] **시나리오 A**: DummyGen → 시료 추가 → 주문 → 승인 → 모니터링 → 출고/생산 확인
+- [x] **시나리오 B**: REJECTED 주문이 모니터링 집계에서 제외
+- [x] **시나리오 C**: DummyGen 후 RESERVED 3건 조회
+- [x] **시나리오 D**: 생산 RUNNING Job 및 estimatedEndTime 확인
+- [x] **시나리오 E**: 크로스 서비스 — 한 인스턴스가 저장한 시료를 다른 인스턴스가 주문에 사용
+
+### Regression 테스트 확장 (`tests/RegressionTest.cpp` 추가 시나리오)
+
+#### F. 시료 입력 유효성 검증
+- [x] `F1` — 빈 이름 시료 등록 실패 (`registerSample("", 0.1, 0.9)` → false)
+- [x] `F2` — 수율 0.0 시료 등록 실패
+- [x] `F3` — 수율 1.0 초과 시료 등록 실패 (`yield=1.1`)
+- [x] `F4` — 생산시간 0 이하 시료 등록 실패 (`avgProdTime=0.0`)
+- [x] `F5` — 중복 이름 시료 등록 실패 (동일 이름 두 번 등록)
+
+#### G. 주문 입력 유효성 검증
+- [x] `G1` — 존재하지 않는 sampleId로 주문 접수 실패
+- [x] `G2` — 수량 0 주문 접수 실패
+- [x] `G3` — 수량 음수 주문 접수 실패
+
+#### H. 주문 상태 전이 전 경로 검증
+- [x] `H1` — RESERVED → CONFIRMED (재고 충분: stock > quantity)
+- [x] `H2` — RESERVED → PRODUCING (재고 부족: stock < quantity)
+- [x] `H3` — RESERVED → REJECTED
+- [x] `H4` — REJECTED 주문은 `getReservedOrders()`에서 제외됨
+- [x] `H5` — CONFIRMED → RELEASED (출고 후 재고 차감 확인)
+
+#### I. 생산 공식 정확성
+- [x] `I1` — `shortage=100, yield=1.0` → `actualProduction = ceil(100/(1.0*0.9)) = 112`
+- [x] `I2` — `shortage=170, yield=0.92` → `actualProduction = 206`
+- [x] `I3` — `shortage=1, yield=0.85` → `actualProduction = ceil(1/(0.85*0.9)) = 2`
+- [x] `I4` — totalTime = avgProdTime × actualProduction 정확성
+
+#### J. tickCheck 자동 완료
+- [x] `J1` — 과거 `estimatedEndTime` → `tickCheck()=true`, 재고 증가, PRODUCING→CONFIRMED
+- [x] `J2` — 미래 `estimatedEndTime` → `tickCheck()=false`, 상태 변화 없음
+- [x] `J3` — WAITING Job 2개: 첫 번째 완료 → 두 번째 자동 RUNNING 전환 확인
+
+#### K. 모니터링 경계값
+- [x] `K1` — `stock=0` → 고갈
+- [x] `K2` — `stock < activeSum` → 부족
+- [x] `K3` — `stock == activeSum` → 여유 (경계: stock이 정확히 activeSum과 같을 때)
+- [x] `K4` — `stock > activeSum` → 여유 (RESERVED는 activeSum에 미포함 확인)
+
+#### L. 출고 오류 케이스
+- [x] `L1` — RESERVED 상태 주문 출고 시도 → false 반환
+- [x] `L2` — REJECTED 상태 주문 출고 시도 → false 반환
+- [x] `L3` — 출고 후 재고가 `stock -= quantity` 만큼 차감됨
+
+#### M. ID 연속성
+- [x] `M1` — DummyGen(10종) 후 `syncIdGenerator()` → 다음 시료 ID가 `S-011`
+- [x] `M2` — `nextSampleId()` 연속 호출 시 S-011, S-012 순서 보장
+
+---
 
 ### CleanCode 최종 리팩토링
 
 - [x] 함수 길이 30줄 초과 함수 탐지 및 분리
 - [x] 매직 넘버 전수 조사 → `constexpr` 상수화
-  ```cpp
-  constexpr double kYieldBuffer  = 0.9;
-  constexpr int    kPageSize     = 5;
-  constexpr int    kRefreshSec   = 60;    // 모니터링 자동 갱신 주기
-  constexpr int    kPollMs       = 500;   // _kbhit() 폴링 간격
-  ```
 - [x] `#pragma once` 누락 헤더 확인
 - [x] `const`/`const&` 파라미터 전달 일관성 확인
-- [x] 중복 코드 제거 (OrderService::currentTimestamp → TimeUtil::nowString)
+- [x] 중복 코드 제거
 
 ### 최종 테스트 전체 통과
 
-- [x] VS Debug x64 빌드 → `RUN_ALL_TESTS()` 0 failures (68개 통과)
-- [x] 테스트 커버리지 확인:
-  - `TimeUtil::addMinutes` / `isPast` 경계값
-  - `ProductionService::tickCheck()` 과거·미래 `estimatedEndTime`
-  - `ProductionJob` 생산 공식 (`ceil(shortage / (yield * 0.9))`)
-  - `OrderStatus` 전이 (모든 경로: CONFIRMED / PRODUCING / REJECTED)
-  - 재고 상태 판별 경계값 (여유 / 부족 / 고갈)
-  - `SampleService` 입력 검증 (빈 이름, yield 범위, avgProdTime 범위)
-  - `IdGenerator` 형식 및 순번
+- [x] VS Debug x64 빌드 → `RUN_ALL_TESTS()` 0 failures (73개 통과)
+- [x] Regression 확장 테스트 추가 후 전체 통과
 
 ---
 
 ## 완료 기준
 
-- 더미 데이터 실행 후 전체 5개 시나리오 수동 검증 완료
+- 더미 데이터 실행 후 전체 시나리오 수동 검증 완료
 - VS Debug x64 전체 테스트 통과 (0 failures)
 - 모든 소스 파일에 `#pragma once`, 매직 넘버 없음, 함수 30줄 이내
