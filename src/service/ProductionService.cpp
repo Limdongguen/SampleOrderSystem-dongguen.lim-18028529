@@ -6,7 +6,7 @@
 namespace {
     constexpr double kYieldBuffer = 0.9;
     constexpr int    kShortageMin = 1;
-    const     char*  kJobIdPrefix = "JOB-";
+    constexpr const char* kJobIdPrefix = "JOB-";
 }
 
 ProductionService::ProductionService(
@@ -49,9 +49,7 @@ bool ProductionService::enqueue(const Order& order, const Sample& sample) {
     m_jobRepo->save();
 
     if (queueWasEmpty) {
-        // 큐가 비어있었으면 즉시 RUNNING 전환
-        ProductionJob& front = const_cast<ProductionJob&>(m_queue.front());
-        startJob(front);
+        startJob(m_queue.front());
     }
     return true;
 }
@@ -82,42 +80,37 @@ bool ProductionService::tickCheck() {
     return true;
 }
 
-void ProductionService::completeJob(ProductionJob& job) {
-    // 재고 증가
+void ProductionService::applySampleStockIncrease(ProductionJob& job) {
     auto sampleOpt = m_sampleRepo->findById(job.sampleId);
-    if (sampleOpt.has_value()) {
-        Sample sample   = sampleOpt.value();
-        sample.stock   += job.actualProduction;
-        m_sampleRepo->update(sample);
-        m_sampleRepo->save();
-    }
+    if (!sampleOpt.has_value()) return;
+    Sample sample = sampleOpt.value();
+    sample.stock += job.actualProduction;
+    m_sampleRepo->update(sample);
+    m_sampleRepo->save();
+}
 
-    // 주문 상태 PRODUCING -> CONFIRMED
+void ProductionService::applyOrderConfirmed(ProductionJob& job) {
     auto orderOpt = m_orderRepo->findById(job.orderId);
-    if (orderOpt.has_value()) {
-        Order order      = orderOpt.value();
-        order.status     = OrderStatus::CONFIRMED;
-        order.updatedAt  = TimeUtil::nowString();
-        m_orderRepo->update(order);
-        m_orderRepo->save();
-    }
+    if (!orderOpt.has_value()) return;
+    Order order     = orderOpt.value();
+    order.status    = OrderStatus::CONFIRMED;
+    order.updatedAt = TimeUtil::nowString();
+    m_orderRepo->update(order);
+    m_orderRepo->save();
+}
 
-    // Job 완료
+void ProductionService::completeJob(ProductionJob& job) {
+    applySampleStockIncrease(job);
+    applyOrderConfirmed(job);
+
     job.status = JobStatus::DONE;
     m_jobRepo->update(job);
     m_jobRepo->save();
 
-    // 큐에서 제거
-    if (!m_queue.empty()) {
-        m_queue.pop();
-    }
+    if (!m_queue.empty()) m_queue.pop();
 
-    // 다음 WAITING Job 시작
-    if (!m_queue.empty()) {
-        ProductionJob& next = m_queue.front();
-        if (next.status == JobStatus::WAITING) {
-            startJob(next);
-        }
+    if (!m_queue.empty() && m_queue.front().status == JobStatus::WAITING) {
+        startJob(m_queue.front());
     }
 }
 

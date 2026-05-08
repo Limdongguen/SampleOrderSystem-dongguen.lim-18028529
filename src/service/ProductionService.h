@@ -33,6 +33,8 @@ private:
 
     void startJob(ProductionJob& job);
     void completeJob(ProductionJob& job);
+    void applySampleStockIncrease(ProductionJob& job);
+    void applyOrderConfirmed(ProductionJob& job);
 
     static int    calcShortage(const Order& order, const Sample& sample);
     static int    calcActualProduction(int shortage, double yield);
