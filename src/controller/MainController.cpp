@@ -8,6 +8,11 @@ namespace {
     constexpr int kMenuExit = 0;
 }
 
+MainController::MainController()
+    : m_sampleController(std::make_unique<SampleController>())
+{
+}
+
 void MainController::run() {
     int choice = -1;
     while (choice != kMenuExit) {
@@ -38,7 +43,7 @@ int MainController::readChoice() const {
 
 void MainController::handleChoice(int choice) {
     switch (choice) {
-    case 1: std::cout << "[1] 시료 관리 - 미구현\n"; break;
+    case 1: m_sampleController->run(); break;
     case 2: std::cout << "[2] 시료 주문 - 미구현\n"; break;
     case 3: std::cout << "[3] 주문 승인/거절 - 미구현\n"; break;
     case 4: std::cout << "[4] 모니터링 - 미구현\n"; break;
