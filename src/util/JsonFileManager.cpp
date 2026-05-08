@@ -4,6 +4,10 @@
 
 namespace fs = std::filesystem;
 
+namespace {
+    constexpr int kJsonIndent = 2;
+}
+
 nlohmann::json JsonFileManager::load(const std::string& path) {
     if (!fs::exists(path)) {
         return nlohmann::json::array();
@@ -30,5 +34,5 @@ void JsonFileManager::save(const std::string& path, const nlohmann::json& data) 
     }
 
     std::ofstream ofs(path);
-    ofs << data.dump(2);
+    ofs << data.dump(kJsonIndent);
 }
