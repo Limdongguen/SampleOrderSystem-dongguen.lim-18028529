@@ -1,0 +1,28 @@
+# Visual Studio 런타임 캐시
+.vs/**/FileContentIndex/
+.vs/**/*.vsidx
+.vs/**/*.opendb
+.vs/**/*.db-shm
+.vs/**/*.db-wal
+
+# 빌드 출력
+x64/
+x86/
+Debug/
+Release/
+*.exe
+*.obj
+*.pdb
+*.ilk
+*.lib
+*.idb
+*.ipch
+*.tlog
+*.lastbuildstate
+*.unsuccessfulbuild
+*.FileListAbsolute.txt
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
