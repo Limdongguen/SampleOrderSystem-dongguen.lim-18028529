@@ -12,30 +12,30 @@
 ## 체크리스트
 
 ### vcxproj 설정
-- [ ] `AdditionalIncludeDirectories`: `$(ProjectDir)..\src;$(ProjectDir)..\third_party`
-- [ ] `PrecompiledHeader`: `NotUsing` (4개 구성 모두)
-- [ ] `LocalDebuggerWorkingDirectory`: `$(ProjectDir)..\` (data/ 경로 해결)
-- [ ] 테스트 파일 추가 섹션 준비 (Debug|x64 전용 `<ExcludedFromBuild>`)
+- [x] `AdditionalIncludeDirectories`: `$(ProjectDir)..\src;$(ProjectDir)..\third_party`
+- [x] `PrecompiledHeader`: `NotUsing` (4개 구성 모두)
+- [x] `LocalDebuggerWorkingDirectory`: `$(ProjectDir)..\` (data/ 경로 해결)
+- [x] 테스트 파일 추가 섹션 준비 (Debug|x64 전용 `<ExcludedFromBuild>`)
 
 ### 도메인 모델 & Enum
-- [ ] `src/model/Enums.h` — `OrderStatus`, `JobStatus` enum class + to/from string 헬퍼
-- [ ] `src/model/Sample.h` — 구조체 + `NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE`
-- [ ] `src/model/Order.h` — 구조체 + JSON 직렬화
-- [ ] `src/model/ProductionJob.h` — 구조체 + JSON 직렬화
+- [x] `src/model/Enums.h` — `OrderStatus`, `JobStatus` enum class + to/from string 헬퍼
+- [x] `src/model/Sample.h` — 구조체 + `NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE`
+- [x] `src/model/Order.h` — 구조체 + JSON 직렬화
+- [x] `src/model/ProductionJob.h` — 구조체 + JSON 직렬화
 
 ### 유틸리티
-- [ ] `src/util/JsonFileManager.h/.cpp` — `load(path)`, `save(path, json)`; 파일 없으면 빈 배열 반환
-- [ ] `src/util/IdGenerator.h/.cpp` — `nextOrderId()` → `ORD-YYYYMMDD-NNNN`, `nextSampleId()` → `S-NNN`, `reset()`
-- [ ] `src/util/ConsoleHelper.h/.cpp` — `readInt(min, max)`, `readLine()`, `readDouble()`
+- [x] `src/util/JsonFileManager.h/.cpp` — `load(path)`, `save(path, json)`; 파일 없으면 빈 배열 반환
+- [x] `src/util/IdGenerator.h/.cpp` — `nextOrderId()` → `ORD-YYYYMMDD-NNNN`, `nextSampleId()` → `S-NNN`, `reset()`
+- [x] `src/util/ConsoleHelper.h/.cpp` — `readInt(min, max)`, `readLine()`, `readDouble()`
 
 ### 진입점 & MainController 골격
-- [ ] `SampleOrderSystem/main.cpp` 수정 — Release 분기에 `MainController::run()` 호출
-- [ ] `src/controller/MainController.h/.cpp` — 메뉴 루프 (`[1]~[6] [0]종료`), 각 항목 "미구현" 출력
+- [x] `SampleOrderSystem/main.cpp` 수정 — Release 분기에 `MainController::run()` 호출
+- [x] `src/controller/MainController.h/.cpp` — 메뉴 루프 (`[1]~[6] [0]종료`), 각 항목 "미구현" 출력
 
 ### 단위 테스트 (gmock, Debug|x64 전용)
-- [ ] `tests/JsonFileManagerTest.cpp` — 저장/로드 왕복, 파일 없을 때 빈 배열
-- [ ] `tests/IdGeneratorTest.cpp` — 형식, 순번 증가, 날짜 포함
-- [ ] vcxproj에 테스트 파일 2개 추가 (Debug|x64 전용)
+- [x] `tests/JsonFileManagerTest.cpp` — 저장/로드 왕복, 파일 없을 때 빈 배열
+- [x] `tests/IdGeneratorTest.cpp` — 형식, 순번 증가, 날짜 포함
+- [x] vcxproj에 테스트 파일 2개 추가 (Debug|x64 전용)
 
 ---
 
