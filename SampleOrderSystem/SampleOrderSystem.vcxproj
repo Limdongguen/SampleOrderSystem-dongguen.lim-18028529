@@ -178,6 +178,18 @@
     <ClCompile Include="$(ProjectDir)..\tests\ProductionServiceTest.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'!='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="$(ProjectDir)..\tests\TimeUtilTest.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'!='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(ProjectDir)..\tests\ReleaseServiceTest.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'!='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(ProjectDir)..\src\util\TimeUtil.cpp" />
+    <ClCompile Include="$(ProjectDir)..\src\service\ReleaseService.cpp" />
+    <ClCompile Include="$(ProjectDir)..\src\view\ProductionView.cpp" />
+    <ClCompile Include="$(ProjectDir)..\src\view\ReleaseView.cpp" />
+    <ClCompile Include="$(ProjectDir)..\src\controller\ProductionController.cpp" />
+    <ClCompile Include="$(ProjectDir)..\src\controller\ReleaseController.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
