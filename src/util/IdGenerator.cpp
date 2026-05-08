@@ -8,12 +8,12 @@ int IdGenerator::s_sampleSeq = 0;
 
 std::string IdGenerator::nextOrderId() {
     ++s_orderSeq;
-    return "ORD-" + currentDateString() + "-" + zeroPad(s_orderSeq, 4);
+    return "ORD-" + currentDateString() + "-" + zeroPad(s_orderSeq, kOrderSeqWidth);
 }
 
 std::string IdGenerator::nextSampleId() {
     ++s_sampleSeq;
-    return "S-" + zeroPad(s_sampleSeq, 3);
+    return "S-" + zeroPad(s_sampleSeq, kSampleSeqWidth);
 }
 
 void IdGenerator::reset() {

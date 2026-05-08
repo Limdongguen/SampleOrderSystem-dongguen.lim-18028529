@@ -2,16 +2,24 @@
 #include <iostream>
 #include <limits>
 
+namespace {
+    constexpr auto kStreamMax = std::numeric_limits<std::streamsize>::max();
+}
+
+void ConsoleHelper::clearInputStream() {
+    std::cin.clear();
+    std::cin.ignore(kStreamMax, '\n');
+}
+
 int ConsoleHelper::readInt(int minVal, int maxVal) {
     int value{};
     while (true) {
         std::cin >> value;
         if (std::cin.fail() || value < minVal || value > maxVal) {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            clearInputStream();
             std::cout << "  [" << minVal << "~" << maxVal << "] 범위의 숫자를 입력하세요: ";
         } else {
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cin.ignore(kStreamMax, '\n');
             return value;
         }
     }
@@ -28,11 +36,10 @@ double ConsoleHelper::readDouble() {
     while (true) {
         std::cin >> value;
         if (std::cin.fail()) {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            clearInputStream();
             std::cout << "  유효한 숫자를 입력하세요: ";
         } else {
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cin.ignore(kStreamMax, '\n');
             return value;
         }
     }
