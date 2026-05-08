@@ -2,7 +2,9 @@
 #include <cmath>
 
 namespace {
-    constexpr double kYieldBuffer = 0.9;
+    constexpr double kYieldBuffer   = 0.9;
+    constexpr int    kShortageMin   = 1;
+    const     char*  kJobIdPrefix   = "JOB-";
 }
 
 ProductionService::ProductionService(const std::string& productionFilePath)
@@ -18,7 +20,7 @@ ProductionService::ProductionService(const std::string& productionFilePath)
 
 bool ProductionService::enqueue(const Order& order, const Sample& sample) {
     int shortage = calcShortage(order, sample);
-    if (shortage <= 0) return false;
+    if (shortage < kShortageMin) return false;
 
     int    actualProduction = calcActualProduction(shortage, sample.yield);
     double totalTime        = calcTotalTime(sample.avgProdTime, actualProduction);
@@ -62,5 +64,5 @@ double ProductionService::calcTotalTime(double avgProdTime, int actualProduction
 }
 
 std::string ProductionService::generateJobId(const std::string& orderId) {
-    return "JOB-" + orderId;
+    return kJobIdPrefix + orderId;
 }
