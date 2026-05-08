@@ -13,8 +13,8 @@ CleanCode 최종 리팩토링으로 제출 품질을 완성한다.
 
 ### 더미 데이터 생성 Tool
 
-- [ ] `SampleOrderSystem/DummyGen.cpp` 또는 별도 실행 파일로 구현
-- [ ] 시료 10종 생성 (실제 반도체 소재명 사용)
+- [x] `SampleOrderSystem/DummyGen.cpp` 또는 별도 실행 파일로 구현
+- [x] 시료 10종 생성 (실제 반도체 소재명 사용)
   ```
   실리콘 웨이퍼-8인치, GaN 에피택셜-4인치, SiC 파워기판-6인치,
   포토레지스트-PR7, 산화막 웨이퍼-SiO2, HfO2 게이트유전체,
@@ -23,12 +23,12 @@ CleanCode 최종 리팩토링으로 제출 품질을 완성한다.
   - **`avgProdTime`을 0.05~0.2 (분) 으로 설정** → 생산 완료가 수 분 내에 일어나도록 (시연용)
   - `yield`: 0.85 ~ 0.98 범위 랜덤
 
-- [ ] 주문 20건 생성 (상태 혼합: RESERVED 3, CONFIRMED 5, PRODUCING 3, RELEASED 8, REJECTED 1)
-- [ ] 생산 작업 3건 생성 (PRODUCING 주문과 1:1 매핑, 1개 RUNNING + 2개 WAITING)
+- [x] 주문 20건 생성 (상태 혼합: RESERVED 3, CONFIRMED 5, PRODUCING 3, RELEASED 8, REJECTED 1)
+- [x] 생산 작업 3건 생성 (PRODUCING 주문과 1:1 매핑, 1개 RUNNING + 2개 WAITING)
   - **RUNNING Job의 `estimatedEndTime`**: 더미 생성 시각 기준 `+2분` 으로 설정  
     → 앱 실행 후 약 2분 내에 `tickCheck()`가 자동 완료 처리
 
-- [ ] 실행 시 `data/*.json` 생성 및 결과 요약 출력
+- [x] 실행 시 `data/*.json` 생성 및 결과 요약 출력
 
 ### 전체 시나리오 통합 검증
 
@@ -41,22 +41,22 @@ CleanCode 최종 리팩토링으로 제출 품질을 완성한다.
 
 ### CleanCode 최종 리팩토링
 
-- [ ] 함수 길이 30줄 초과 함수 탐지 및 분리
-- [ ] 매직 넘버 전수 조사 → `constexpr` 상수화
+- [x] 함수 길이 30줄 초과 함수 탐지 및 분리
+- [x] 매직 넘버 전수 조사 → `constexpr` 상수화
   ```cpp
   constexpr double kYieldBuffer  = 0.9;
   constexpr int    kPageSize     = 5;
   constexpr int    kRefreshSec   = 60;    // 모니터링 자동 갱신 주기
   constexpr int    kPollMs       = 500;   // _kbhit() 폴링 간격
   ```
-- [ ] `#pragma once` 누락 헤더 확인
-- [ ] `const`/`const&` 파라미터 전달 일관성 확인
-- [ ] 중복 코드 제거
+- [x] `#pragma once` 누락 헤더 확인
+- [x] `const`/`const&` 파라미터 전달 일관성 확인
+- [x] 중복 코드 제거 (OrderService::currentTimestamp → TimeUtil::nowString)
 
 ### 최종 테스트 전체 통과
 
-- [ ] VS Debug x64 빌드 → `RUN_ALL_TESTS()` 0 failures
-- [ ] 테스트 커버리지 확인:
+- [x] VS Debug x64 빌드 → `RUN_ALL_TESTS()` 0 failures (68개 통과)
+- [x] 테스트 커버리지 확인:
   - `TimeUtil::addMinutes` / `isPast` 경계값
   - `ProductionService::tickCheck()` 과거·미래 `estimatedEndTime`
   - `ProductionJob` 생산 공식 (`ceil(shortage / (yield * 0.9))`)
