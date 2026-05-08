@@ -10,10 +10,14 @@ int main() {
     ::testing::InitGoogleMock();
     return RUN_ALL_TESTS();
 }
+
 #else
+
+#include "controller/MainController.h"
 
 int main()
 {
+    MainController().run();
     return 0;
 }
 

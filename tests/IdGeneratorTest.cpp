@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+﻿#include <gtest/gtest.h>
 #include "util/IdGenerator.h"
 #include <regex>
 #include <string>
@@ -53,8 +53,9 @@ TEST_F(IdGeneratorTest, SampleIdSequenceIncreases) {
 
 // reset 후 순번 초기화
 TEST_F(IdGeneratorTest, ResetResetsSequence) {
-    IdGenerator::nextOrderId();
-    IdGenerator::nextOrderId();
+    std::string dummy1 = IdGenerator::nextOrderId();
+    std::string dummy2 = IdGenerator::nextOrderId();
+    (void)dummy1; (void)dummy2;
     IdGenerator::reset();
 
     std::string id = IdGenerator::nextOrderId();

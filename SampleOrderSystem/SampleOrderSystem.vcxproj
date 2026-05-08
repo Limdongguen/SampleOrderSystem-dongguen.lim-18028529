@@ -139,6 +139,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="$(ProjectDir)..\src\util\JsonFileManager.cpp" />
+    <ClCompile Include="$(ProjectDir)..\src\util\IdGenerator.cpp" />
+    <ClCompile Include="$(ProjectDir)..\src\util\ConsoleHelper.cpp" />
+    <ClCompile Include="$(ProjectDir)..\src\controller\MainController.cpp" />
     <ClCompile Include="$(ProjectDir)..\tests\JsonFileManagerTest.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'!='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
