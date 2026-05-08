@@ -47,21 +47,21 @@ public:
 ## 체크리스트
 
 ### TimeUtil 구현
-- [ ] `src/util/TimeUtil.h/.cpp` — `nowString`, `addMinutes`, `isPast`, `secondsUntil`
-- [ ] `tests/TimeUtilTest.cpp` — `addMinutes` 분 덧셈, `isPast` 경계값 테스트
+- [x] `src/util/TimeUtil.h/.cpp` — `nowString`, `addMinutes`, `isPast`, `secondsUntil`
+- [x] `tests/TimeUtilTest.cpp` — `addMinutes` 분 덧셈, `isPast` 경계값 테스트
 
 ### ProductionService — RUNNING 전환 & 자동 완료
 
-- [ ] **`startJob(ProductionJob&)`** (private)
+- [x] **`startJob(ProductionJob&)`** (private)
   - `job.estimatedEndTime = TimeUtil::addMinutes(TimeUtil::nowString(), job.totalTime)`
   - `job.status = JobStatus::RUNNING`
   - `m_jobRepo->update(job)` + `m_jobRepo->save()`
 
-- [ ] **`enqueue()` 수정** — RUNNING 전환 로직 추가  
+- [x] **`enqueue()` 수정** — RUNNING 전환 로직 추가  
   큐가 비어 있을 때: `job.status = WAITING` 후 push → 즉시 `startJob(job)` 호출  
   큐가 비어 있지 않을 때: `job.status = WAITING` 후 push (대기)
 
-- [ ] **`tickCheck()`** (public)  
+- [x] **`tickCheck()`** (public)  
   ```
   1. findAll()에서 RUNNING Job 탐색
   2. 없으면 return
@@ -69,7 +69,7 @@ public:
   4. completeJob(job) 호출
   ```
 
-- [ ] **`completeJob(ProductionJob&)`** (private)
+- [x] **`completeJob(ProductionJob&)`** (private)
   1. `sample.stock += job.actualProduction`
   2. 연결 주문 상태: PRODUCING → CONFIRMED, `updatedAt` 갱신
   3. `job.status = DONE`
@@ -78,14 +78,14 @@ public:
   6. `ProductionJobRepository::update(job)` + `save()`
   7. 큐에서 next WAITING Job 꺼내 `startJob()` 호출
 
-- [ ] **`getCurrentJob()`** — RUNNING Job 반환 `std::optional<ProductionJob>`
-- [ ] **`getWaitingJobs()`** — WAITING Job 목록 반환 `std::vector<ProductionJob>`
+- [x] **`getCurrentJob()`** — RUNNING Job 반환 `std::optional<ProductionJob>`
+- [x] **`getWaitingJobs()`** — WAITING Job 목록 반환 `std::vector<ProductionJob>`
 
 > **의존성**: `ProductionService`는 `SampleRepository`·`OrderRepository`·`ProductionJobRepository`를 모두 보유한다.
 
 ### ProductionView & ProductionController
 
-- [ ] `src/view/ProductionView.h/.cpp`
+- [x] `src/view/ProductionView.h/.cpp`
   - **현재 처리 중:**  
     - 주문번호, 시료ID, 부족분, 실 생산량  
     - 완료 예정: `estimatedEndTime` 문자열  
@@ -93,7 +93,7 @@ public:
   - **대기 큐 (FIFO):** 순서, 주문번호, 시료ID, 실 생산량, 예상 소요시간(분)
   - 생산라인 비어있을 때: `"현재 생산 중인 작업 없음"` 출력
 
-- [ ] `src/controller/ProductionController.h/.cpp`
+- [x] `src/controller/ProductionController.h/.cpp`
   - `run()` 진입 시 **`m_productionService->tickCheck()` 먼저 호출**
   - 생산 현황 표시 후 `[0] 뒤로` 입력 대기  
     *(완료는 `tickCheck()`가 자동 처리 — 수동 완료 버튼 없음)*
@@ -101,32 +101,32 @@ public:
 
 ### ReleaseService
 
-- [ ] `src/service/ReleaseService.h/.cpp`
+- [x] `src/service/ReleaseService.h/.cpp`
   - `getConfirmedOrders()` — CONFIRMED 주문 목록 반환
   - `release(orderId)` — 주문 검증(CONFIRMED 여부) → `stock -= quantity` → 상태 RELEASED → 저장
 
 ### ReleaseView & ReleaseController
 
-- [ ] `src/view/ReleaseView.h/.cpp`
+- [x] `src/view/ReleaseView.h/.cpp`
   - CONFIRMED 목록 테이블 (번호, 주문번호, 고객명, 시료ID, 수량)
   - 출고 완료 메시지 (주문번호, 출고 수량)
-- [ ] `src/controller/ReleaseController.h/.cpp`
+- [x] `src/controller/ReleaseController.h/.cpp`
   - `run()` 진입 시 `m_productionService->tickCheck()` 호출
   - CONFIRMED 목록 → 번호 선택 → `ReleaseService::release()`
   - `MainController`에서 `[6]` 선택 시 `ReleaseController::run()` 연결
 
 ### 단위 테스트
 
-- [ ] `tests/TimeUtilTest.cpp`
+- [x] `tests/TimeUtilTest.cpp`
   - `addMinutes("2026-05-08 14:00:00", 90.0)` → `"2026-05-08 15:30:00"`
   - `isPast(now, past_time)` → true / `isPast(now, future_time)` → false
 
-- [ ] `tests/ProductionServiceTest.cpp` (완료 처리 케이스 추가)
+- [x] `tests/ProductionServiceTest.cpp` (완료 처리 케이스 추가)
   - `tickCheck()` — `isPast` 반환값 오버로드를 이용해 시간 주입:  
     과거 `estimatedEndTime` 설정 후 `tickCheck()` 호출 → 재고 증가 + CONFIRMED 전환 확인
   - 큐에 Job 2개: 첫 번째 완료 후 두 번째 자동 RUNNING 전환 확인
 
-- [ ] `tests/ReleaseServiceTest.cpp`
+- [x] `tests/ReleaseServiceTest.cpp`
   - CONFIRMED 주문 출고 → RELEASED, `stock -= quantity` 확인
   - CONFIRMED 아닌 주문 출고 시도 → `false` 반환
 
