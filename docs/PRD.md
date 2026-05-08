@@ -135,7 +135,7 @@ struct ProductionJob {
 
 | 항목 | 선택 |
 |------|------|
-| 언어 | C++17 |
+| 언어 | C++20 |
 | 빌드 | Visual Studio 2026 (MSBuild) |
 | JSON | nlohmann/json (`third_party/nlohmann/json.hpp`) |
 | 테스트 | Google Mock/Test (NuGet `gmock.1.11.0`) |
