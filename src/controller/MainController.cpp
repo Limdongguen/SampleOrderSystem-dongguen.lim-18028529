@@ -4,7 +4,7 @@
 
 namespace {
     constexpr int kMenuMin  = 0;
-    constexpr int kMenuMax  = 6;
+    constexpr int kMenuMax  = 7;
     constexpr int kMenuExit = 0;
 }
 
@@ -43,8 +43,19 @@ void MainController::handleChoice(int choice) {
     case 4: m_monitoringController->run();      break;
     case 5: m_productionController->run();      break;
     case 6: m_releaseController->run();         break;
+    case 7: handleDummyGen();                   break;
     case 0: m_view.printExit();                 break;
     default: break;
+    }
+}
+
+void MainController::handleDummyGen() {
+    m_view.printDummyGenConfirm();
+    DummyGen gen;
+    if (gen.generate()) {
+        m_view.printDummyGenSuccess();
+    } else {
+        m_view.printDummyGenFail();
     }
 }
 

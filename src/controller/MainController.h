@@ -12,6 +12,7 @@
 #include "service/OrderService.h"
 #include "model/MenuSummary.h"
 #include "view/MainView.h"
+#include "DummyGen.h"
 #include <memory>
 
 class MainController {
@@ -30,7 +31,8 @@ private:
     std::unique_ptr<ReleaseController>    m_releaseController;
     MainView                              m_view;
 
-    int        readChoice() const;
-    void       handleChoice(int choice);
+    int         readChoice() const;
+    void        handleChoice(int choice);
+    void        handleDummyGen();
     MenuSummary collectSummary() const;
 };

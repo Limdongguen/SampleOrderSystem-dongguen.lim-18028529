@@ -14,6 +14,7 @@ void MainView::printMenu() const {
     std::cout << "  ║  [4] 모니터링\n";
     std::cout << "  ║  [5] 생산라인 조회\n";
     std::cout << "  ║  [6] 출고 처리\n";
+    std::cout << "  ║  [7] 더미 데이터 생성\n";
     std::cout << "  ║  [0] 종료\n";
     std::cout << "  ╚══════════════════════════════\n";
     std::cout << "  선택 >> ";
@@ -35,6 +36,7 @@ void MainView::printMenu(const MenuSummary& s) const {
     std::cout << "  ║  [4] 모니터링\n";
     std::cout << "  ║  [5] 생산라인 조회\n";
     std::cout << "  ║  [6] 출고 처리\n";
+    std::cout << "  ║  [7] 더미 데이터 생성\n";
     std::cout << "  ║  [0] 종료\n";
     std::cout << "  ╚══════════════════════════════════════\n";
     std::cout << "  선택 >> ";
@@ -46,4 +48,18 @@ void MainView::printNotImplemented(const std::string& feature) const {
 
 void MainView::printExit() const {
     std::cout << "\n  시스템을 종료합니다. 안녕히 가세요.\n\n";
+}
+
+void MainView::printDummyGenConfirm() const {
+    std::cout << "\n  더미 데이터를 생성합니다...\n";
+    std::cout << "  (기존 data/*.json 파일이 덮어씌워집니다)\n";
+}
+
+void MainView::printDummyGenSuccess() const {
+    std::cout << "\n  >> 더미 데이터 생성 완료\n";
+    std::cout << "     시료 10종 / 주문 20건 / 생산작업 3건\n";
+}
+
+void MainView::printDummyGenFail() const {
+    std::cout << "\n  [오류] 더미 데이터 생성에 실패했습니다.\n";
 }
