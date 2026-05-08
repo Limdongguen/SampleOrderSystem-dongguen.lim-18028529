@@ -67,7 +67,7 @@ void ProductionService::startJob(ProductionJob& job) {
     }
 }
 
-void ProductionService::tickCheck() {
+bool ProductionService::tickCheck() {
     auto allJobs = m_jobRepo->findAll();
     ProductionJob* runningJob = nullptr;
     for (auto& j : allJobs) {
@@ -76,9 +76,10 @@ void ProductionService::tickCheck() {
             break;
         }
     }
-    if (runningJob == nullptr) return;
-    if (!TimeUtil::isPast(runningJob->estimatedEndTime)) return;
+    if (runningJob == nullptr) return false;
+    if (!TimeUtil::isPast(runningJob->estimatedEndTime)) return false;
     completeJob(*runningJob);
+    return true;
 }
 
 void ProductionService::completeJob(ProductionJob& job) {

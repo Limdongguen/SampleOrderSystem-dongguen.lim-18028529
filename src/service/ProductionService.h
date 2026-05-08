@@ -20,7 +20,7 @@ public:
     );
 
     bool                            enqueue(const Order& order, const Sample& sample);
-    void                            tickCheck();
+    bool                            tickCheck();
     std::optional<ProductionJob>    getCurrentJob() const;
     std::vector<ProductionJob>      getWaitingJobs() const;
     std::vector<ProductionJob>      getQueue() const;
