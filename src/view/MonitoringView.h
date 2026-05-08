@@ -1,5 +1,5 @@
 #pragma once
-#include "service/MonitoringService.h"
+#include "model/MonitoringTypes.h"
 #include <vector>
 
 class MonitoringView {

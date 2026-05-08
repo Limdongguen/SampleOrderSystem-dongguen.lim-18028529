@@ -5,6 +5,7 @@
 
 namespace {
     constexpr int kClearWidth = 60;
+    constexpr int kSepLen     = 56;
 }
 
 void MonitoringView::printSubMenu() const {
@@ -43,7 +44,7 @@ void MonitoringView::printStockStatusList(const std::vector<StockStatus>& list) 
               << std::setw(10) << "활성주문"
               << std::setw(8)  << "상태"
               << "잔여율\n";
-    std::cout << "  " << std::string(56, '-') << "\n";
+    std::cout << "  " << std::string(kSepLen, '-') << "\n";
     for (const auto& ss : list) {
         std::cout << "  " << std::left
                   << std::setw(8)  << ss.sampleId

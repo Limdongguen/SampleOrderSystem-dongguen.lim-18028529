@@ -3,6 +3,11 @@
 #include <sstream>
 #include <iomanip>
 
+namespace {
+    constexpr int kTmYearBase = 1900;
+    constexpr int kTmMonBase  = 1;
+}
+
 int IdGenerator::s_orderSeq  = 0;
 int IdGenerator::s_sampleSeq = 0;
 
@@ -31,8 +36,8 @@ std::string IdGenerator::currentDateString() {
 #endif
     std::ostringstream oss;
     oss << std::setfill('0')
-        << std::setw(4) << (tm.tm_year + 1900)
-        << std::setw(2) << (tm.tm_mon + 1)
+        << std::setw(4) << (tm.tm_year + kTmYearBase)
+        << std::setw(2) << (tm.tm_mon  + kTmMonBase)
         << std::setw(2) << tm.tm_mday;
     return oss.str();
 }
