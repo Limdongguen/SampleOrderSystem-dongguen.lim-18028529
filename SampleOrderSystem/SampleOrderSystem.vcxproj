@@ -143,6 +143,8 @@
     <ClCompile Include="$(ProjectDir)..\src\util\IdGenerator.cpp" />
     <ClCompile Include="$(ProjectDir)..\src\util\ConsoleHelper.cpp" />
     <ClCompile Include="$(ProjectDir)..\src\controller\MainController.cpp" />
+    <ClCompile Include="$(ProjectDir)..\src\repository\SampleRepository.cpp" />
+    <ClCompile Include="$(ProjectDir)..\src\service\SampleService.cpp" />
     <ClCompile Include="$(ProjectDir)..\tests\JsonFileManagerTest.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'!='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
