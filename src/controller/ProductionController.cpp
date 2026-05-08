@@ -1,7 +1,6 @@
 #include "controller/ProductionController.h"
 #include "util/ConsoleHelper.h"
 #include "util/TimeUtil.h"
-#include <iostream>
 
 namespace {
     constexpr int kExitChoice = 0;
@@ -29,6 +28,6 @@ void ProductionController::run() {
 
     m_view.printWaitingQueue(waitingJobs);
 
-    std::cout << "\n  [0] 뒤로\n  선택: ";
+    m_view.printBackPrompt();
     ConsoleHelper::readInt(kMenuMin, kMenuMax);
 }

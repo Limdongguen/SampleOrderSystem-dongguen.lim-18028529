@@ -8,4 +8,5 @@ public:
     void printReleaseSuccess(const std::string& orderId, int quantity) const;
     void printNoConfirmedOrders() const;
     void printInvalidSelection() const;
+    void printSelectionPrompt() const;
 };

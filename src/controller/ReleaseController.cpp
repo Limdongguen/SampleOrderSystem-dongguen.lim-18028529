@@ -1,6 +1,5 @@
 #include "controller/ReleaseController.h"
 #include "util/ConsoleHelper.h"
-#include <iostream>
 
 namespace {
     constexpr int kExitChoice = 0;
@@ -25,7 +24,7 @@ void ReleaseController::run() {
     }
 
     m_view.printConfirmedList(confirmed);
-    std::cout << "\n  번호 선택 (0: 뒤로): ";
+    m_view.printSelectionPrompt();
     int choice = ConsoleHelper::readInt(kExitChoice, static_cast<int>(confirmed.size()));
     if (choice == kExitChoice) return;
 

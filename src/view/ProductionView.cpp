@@ -5,6 +5,12 @@
 
 namespace {
     constexpr int kSecondsPerMinute = 60;
+    constexpr int kNoW       =  4;
+    constexpr int kOrderW    = 20;
+    constexpr int kSampleW   =  8;
+    constexpr int kProdW     = 10;
+    constexpr int kTimeW     = 12;
+    constexpr int kSepLen    = 58;
 }
 
 void ProductionView::printCurrentJob(const ProductionJob& job, int secondsLeft) const {
@@ -27,23 +33,27 @@ void ProductionView::printCurrentJob(const ProductionJob& job, int secondsLeft) 
 void ProductionView::printWaitingQueue(const std::vector<ProductionJob>& waitingJobs) const {
     if (waitingJobs.empty()) return;
     std::cout << "\n  [대기 큐]\n";
-    std::cout << "  " << std::setw(4) << "순서"
-              << "  " << std::setw(20) << "주문번호"
-              << "  " << std::setw(8)  << "시료ID"
-              << "  " << std::setw(10) << "실생산량"
-              << "  " << std::setw(12) << "예상소요(분)" << "\n";
-    std::cout << "  " << std::string(58, '-') << "\n";
+    std::cout << "  " << std::setw(kNoW)    << "순서"
+              << "  " << std::setw(kOrderW) << "주문번호"
+              << "  " << std::setw(kSampleW)<< "시료ID"
+              << "  " << std::setw(kProdW)  << "실생산량"
+              << "  " << std::setw(kTimeW)  << "예상소요(분)" << "\n";
+    std::cout << "  " << std::string(kSepLen, '-') << "\n";
 
     for (int i = 0; i < static_cast<int>(waitingJobs.size()); ++i) {
         const auto& j = waitingJobs[i];
-        std::cout << "  " << std::setw(4) << (i + 1)
-                  << "  " << std::setw(20) << j.orderId
-                  << "  " << std::setw(8)  << j.sampleId
-                  << "  " << std::setw(10) << j.actualProduction
-                  << "  " << std::setw(12) << j.totalTime << "\n";
+        std::cout << "  " << std::setw(kNoW)    << (i + 1)
+                  << "  " << std::setw(kOrderW) << j.orderId
+                  << "  " << std::setw(kSampleW)<< j.sampleId
+                  << "  " << std::setw(kProdW)  << j.actualProduction
+                  << "  " << std::setw(kTimeW)  << j.totalTime << "\n";
     }
 }
 
 void ProductionView::printNoJobRunning() const {
     std::cout << "\n  현재 생산 중인 작업 없음\n";
+}
+
+void ProductionView::printBackPrompt() const {
+    std::cout << "\n  [0] 뒤로\n  선택: ";
 }
