@@ -3,23 +3,24 @@
 #include <iomanip>
 
 namespace {
-    constexpr int kOrderIdW  = 20;
-    constexpr int kSampleW   = 10;
-    constexpr int kCustW     = 15;
-    constexpr int kQtyW      =  8;
-    constexpr int kStatusW   = 12;
-    constexpr int kSepLen    = 70;
+    constexpr int kOrderIdW = 20;
+    constexpr int kSampleW  = 10;
+    constexpr int kCustW    = 15;
+    constexpr int kQtyW     =  8;
+    constexpr int kStatusW  = 12;
+    constexpr int kSepLen   = 70;
 }
 
 static void printSep() {
     std::cout << "  " << std::string(kSepLen, '-') << "\n";
 }
 
+// 한글은 터미널에서 2열 차지 → 우측 테두리 없이 좌측 테두리만 사용
 void OrderView::printSubMenu() const {
     std::cout << "\n";
-    std::cout << "  ┌─────────────────────────┐\n";
-    std::cout << "  │      주문 접수 메뉴      │\n";
-    std::cout << "  └─────────────────────────┘\n";
+    std::cout << "  ┌──────────────────────────\n";
+    std::cout << "  │  주문 접수 메뉴\n";
+    std::cout << "  └──────────────────────────\n";
 }
 
 void OrderView::printSampleIdPrompt() const {
@@ -31,7 +32,7 @@ void OrderView::printCustomerNamePrompt() const {
 }
 
 void OrderView::printQuantityPrompt() const {
-    std::cout << "  주문 수량 (ea) >> ";
+    std::cout << "  주문 수량(ea) >> ";
 }
 
 void OrderView::printOrderList(const std::vector<Order>& orders) const {
@@ -43,13 +44,9 @@ void OrderView::printOrderList(const std::vector<Order>& orders) const {
     printSep();
     std::cout << "  주문 목록 (" << orders.size() << "건)\n";
     printSep();
-    std::cout << "  " << std::left
-              << std::setw(kOrderIdW) << "주문번호"
-              << std::setw(kSampleW)  << "시료ID"
-              << std::setw(kCustW)    << "고객명"
-              << std::setw(kQtyW)     << "수량"
-              << std::setw(kStatusW)  << "상태"
-              << "접수일시\n";
+    // 열 display 너비: 주문번호=20, 시료ID=10, 고객명=15, 수량=8, 상태=12
+    // 주문번호(8열)+12공백=20, 시료ID(6열)+4공백=10, 고객명(6열)+9공백=15, 수량(4열)+4공백=8, 상태(4열)+8공백=12
+    std::cout << "  주문번호            시료ID    고객명         수량    상태        접수일시\n";
     printSep();
     for (const auto& o : orders) {
         std::cout << "  " << std::left
@@ -69,14 +66,14 @@ void OrderView::printOrderConfirm(const Order& order,
     printSep();
     std::cout << "  주문 접수 확인\n";
     printSep();
-    std::cout << "  시료 ID   : " << order.sampleId     << "  (" << sampleName << ")\n";
-    std::cout << "  고객명    : " << order.customerName  << "\n";
-    std::cout << "  수량      : " << order.quantity      << " ea\n";
+    std::cout << "  시료 ID  : " << order.sampleId     << "  (" << sampleName << ")\n";
+    std::cout << "  고객명   : " << order.customerName  << "\n";
+    std::cout << "  수량     : " << order.quantity      << " ea\n";
     printSep();
 }
 
 void OrderView::printReserveSuccess(const std::string& orderId) const {
-    std::cout << "\n  ✔ 주문 접수 완료 : " << orderId
+    std::cout << "\n  >> 주문 접수 완료 : " << orderId
               << "  [상태: RESERVED]\n";
 }
 
