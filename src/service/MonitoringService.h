@@ -36,6 +36,7 @@ private:
     std::unique_ptr<SampleRepository> m_sampleRepo;
     std::unique_ptr<OrderRepository>  m_orderRepo;
 
+    int                calcActiveSum(const std::string& sampleId) const;
     static std::string determineStatus(int stock, int activeSum);
     static double      calcRemainRatio(int stock, int activeSum);
 };
