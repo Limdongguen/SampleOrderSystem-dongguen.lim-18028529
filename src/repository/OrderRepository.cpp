@@ -52,7 +52,7 @@ void OrderRepository::save() const {
     for (const auto& o : m_orders) {
         nlohmann::json j;
         to_json(j, o);
-        jsonArr.push_back(j);
+        jsonArr.push_back(std::move(j));
     }
     JsonFileManager::save(m_filePath, jsonArr);
 }

@@ -20,14 +20,19 @@ bool OrderService::reserve(const std::string& sampleId,
                            const std::string& customerName,
                            int quantity)
 {
-    if (!isValidQuantity(quantity)) {
-        return false;
-    }
-    auto sample = m_sampleRepo->findById(sampleId);
-    if (!sample.has_value()) {
-        return false;
-    }
+    if (!isValidQuantity(quantity)) return false;
+    if (!m_sampleRepo->findById(sampleId).has_value()) return false;
 
+    Order order = buildOrder(sampleId, customerName, quantity);
+    m_orderRepo->add(order);
+    m_orderRepo->save();
+    return true;
+}
+
+Order OrderService::buildOrder(const std::string& sampleId,
+                               const std::string& customerName,
+                               int quantity) const
+{
     Order order;
     order.orderId      = IdGenerator::nextOrderId();
     order.sampleId     = sampleId;
@@ -36,10 +41,7 @@ bool OrderService::reserve(const std::string& sampleId,
     order.status       = OrderStatus::RESERVED;
     order.createdAt    = currentTimestamp();
     order.updatedAt    = order.createdAt;
-
-    m_orderRepo->add(order);
-    m_orderRepo->save();
-    return true;
+    return order;
 }
 
 std::vector<Order> OrderService::getReservedOrders() const {

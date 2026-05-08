@@ -24,6 +24,9 @@ private:
     std::unique_ptr<SampleRepository> m_sampleRepo;
     std::unique_ptr<OrderRepository>  m_orderRepo;
 
-    bool isValidQuantity(int quantity) const;
+    bool  isValidQuantity(int quantity) const;
+    Order buildOrder(const std::string& sampleId,
+                     const std::string& customerName,
+                     int quantity) const;
     static std::string currentTimestamp();
 };
