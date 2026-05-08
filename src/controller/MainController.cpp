@@ -1,7 +1,6 @@
 #include "controller/MainController.h"
 #include "util/ConsoleHelper.h"
 #include "util/TimeUtil.h"
-#include <numeric>
 
 namespace {
     constexpr int kMenuMin  = 0;
