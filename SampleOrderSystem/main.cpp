@@ -13,10 +13,13 @@ int main() {
 
 #else
 
+#include <windows.h>
 #include "controller/MainController.h"
 
 int main()
 {
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
     MainController().run();
     return 0;
 }
