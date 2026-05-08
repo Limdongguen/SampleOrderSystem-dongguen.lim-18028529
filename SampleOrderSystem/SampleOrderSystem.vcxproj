@@ -143,6 +143,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="DummyGen.cpp" />
     <ClCompile Include="$(ProjectDir)..\src\util\JsonFileManager.cpp" />
     <ClCompile Include="$(ProjectDir)..\src\util\IdGenerator.cpp" />
     <ClCompile Include="$(ProjectDir)..\src\util\ConsoleHelper.cpp" />
