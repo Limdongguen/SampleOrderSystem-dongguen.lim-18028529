@@ -6,6 +6,8 @@ public:
     static std::string nextOrderId();
     static std::string nextSampleId();
     static void        reset();
+    static void        initSampleSeq(int maxExisting);
+    static void        initOrderSeq(int maxExisting);
 
 private:
     static constexpr int kOrderSeqWidth  = 4;

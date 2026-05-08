@@ -13,6 +13,9 @@
 #include "model/MenuSummary.h"
 #include "view/MainView.h"
 #include "DummyGen.h"
+#include "util/JsonFileManager.h"
+#include "util/IdGenerator.h"
+#include "util/TimeUtil.h"
 #include <memory>
 
 class MainController {
@@ -34,5 +37,7 @@ private:
     int         readChoice() const;
     void        handleChoice(int choice);
     void        handleDummyGen();
+    void        reloadAll();
+    void        syncIdGenerator();
     MenuSummary collectSummary() const;
 };

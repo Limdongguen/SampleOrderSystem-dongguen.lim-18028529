@@ -26,6 +26,9 @@ void IdGenerator::reset() {
     s_sampleSeq = 0;
 }
 
+void IdGenerator::initSampleSeq(int maxExisting) { s_sampleSeq = maxExisting; }
+void IdGenerator::initOrderSeq(int maxExisting)  { s_orderSeq  = maxExisting; }
+
 std::string IdGenerator::currentDateString() {
     std::time_t now = std::time(nullptr);
     std::tm tm{};
