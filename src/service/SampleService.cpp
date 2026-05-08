@@ -1,6 +1,13 @@
 #include "service/SampleService.h"
 #include "util/IdGenerator.h"
 
+namespace {
+    constexpr double kYieldMin      = 0.0;
+    constexpr double kYieldMax      = 1.0;
+    constexpr double kProdTimeMin   = 0.0;
+    constexpr int    kInitialStock  = 0;
+}
+
 SampleService::SampleService(const std::string& filePath)
     : m_repo(std::make_unique<SampleRepository>(filePath))
 {
@@ -19,7 +26,7 @@ bool SampleService::registerSample(const std::string& name, double avgProdTime, 
     s.name        = name;
     s.avgProdTime = avgProdTime;
     s.yield       = yield;
-    s.stock       = 0;
+    s.stock       = kInitialStock;
 
     m_repo->add(s);
     m_repo->save();
@@ -40,8 +47,8 @@ std::optional<Sample> SampleService::getSampleById(const std::string& id) const 
 
 bool SampleService::isValidInput(const std::string& name, double avgProdTime, double yield) const {
     if (name.empty()) return false;
-    if (avgProdTime <= 0.0) return false;
-    if (yield <= 0.0 || yield > 1.0) return false;
+    if (avgProdTime <= kProdTimeMin) return false;
+    if (yield <= kYieldMin || yield > kYieldMax) return false;
     return true;
 }
 

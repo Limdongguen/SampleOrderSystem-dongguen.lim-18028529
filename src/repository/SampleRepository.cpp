@@ -39,9 +39,6 @@ std::vector<Sample> SampleRepository::findByName(const std::string& keyword) con
 }
 
 void SampleRepository::save() const {
-    nlohmann::json json = nlohmann::json::array();
-    for (const auto& s : m_samples) {
-        json.push_back(s);
-    }
-    JsonFileManager::save(m_filePath, json);
+    nlohmann::json jsonArr = nlohmann::json(m_samples);
+    JsonFileManager::save(m_filePath, jsonArr);
 }
