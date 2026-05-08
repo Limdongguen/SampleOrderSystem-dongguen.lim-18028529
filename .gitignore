@@ -1,9 +1,5 @@
 # Visual Studio 런타임 캐시
-.vs/**/FileContentIndex/
-.vs/**/*.vsidx
-.vs/**/*.opendb
-.vs/**/*.db-shm
-.vs/**/*.db-wal
+.vs/
 
 # 빌드 출력
 x64/
