@@ -15,6 +15,10 @@ public:
     void save() const;
 
 private:
-    std::string                m_filePath;
-    std::vector<ProductionJob> m_jobs;
+    std::string                        m_filePath;
+    mutable std::vector<ProductionJob> m_jobs;
+    mutable bool                       m_dirty = false;
+
+    void reload() const;
+    void ensureFresh() const;
 };

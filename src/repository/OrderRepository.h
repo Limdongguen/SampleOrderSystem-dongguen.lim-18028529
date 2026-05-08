@@ -17,6 +17,10 @@ public:
     void save() const;
 
 private:
-    std::string        m_filePath;
-    std::vector<Order> m_orders;
+    std::string                m_filePath;
+    mutable std::vector<Order> m_orders;
+    mutable bool               m_dirty = false;
+
+    void reload() const;
+    void ensureFresh() const;
 };
