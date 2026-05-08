@@ -4,8 +4,13 @@
 #include <string>
 
 namespace {
-    constexpr int kClearWidth = 60;
-    constexpr int kSepLen     = 56;
+    constexpr int kClearWidth    = 60;
+    constexpr int kOrderSepLen   = 38; // 주문량 표 구분선
+    constexpr int kStockSepLen   = 60; // 재고량 표 구분선
+}
+
+static void printSep(int len) {
+    std::cout << "  " << std::string(len, '-') << "\n";
 }
 
 void MonitoringView::printSubMenu() const {
@@ -21,14 +26,19 @@ void MonitoringView::printSubMenu() const {
 }
 
 void MonitoringView::printOrderSummary(const OrderSummary& summary) const {
-    std::cout << "\n  ── 주문량 현황 ──\n";
-    std::cout << "  상태          건수\n";
-    std::cout << "  RESERVED    " << std::setw(5) << summary.reserved  << "\n";
-    std::cout << "  CONFIRMED   " << std::setw(5) << summary.confirmed << "\n";
-    std::cout << "  PRODUCING   " << std::setw(5) << summary.producing << "  ← 생산라인 가동 중\n";
-    std::cout << "  RELEASED    " << std::setw(5) << summary.released  << "\n";
-    std::cout << "  ─────────────────\n";
-    std::cout << "  합계        " << std::setw(5) << summary.total     << "\n";
+    printSep(kOrderSepLen);
+    std::cout << "  주문량 현황\n";
+    printSep(kOrderSepLen);
+    std::cout << "  상태              건수\n";
+    printSep(kOrderSepLen);
+    std::cout << "  RESERVED      " << std::setw(5) << summary.reserved  << "\n";
+    std::cout << "  CONFIRMED     " << std::setw(5) << summary.confirmed << "\n";
+    std::cout << "  PRODUCING     " << std::setw(5) << summary.producing
+              << "  <- 생산라인 가동 중\n";
+    std::cout << "  RELEASED      " << std::setw(5) << summary.released  << "\n";
+    printSep(kOrderSepLen);
+    std::cout << "  합계          " << std::setw(5) << summary.total     << "\n";
+    printSep(kOrderSepLen);
 }
 
 void MonitoringView::printStockStatusList(const std::vector<StockStatus>& list) const {
@@ -36,15 +46,13 @@ void MonitoringView::printStockStatusList(const std::vector<StockStatus>& list) 
         printEmptyData();
         return;
     }
-    std::cout << "\n  ── 재고량 현황 ──\n";
-    std::cout << "  " << std::left
-              << std::setw(8)  << "시료ID"
-              << std::setw(14) << "이름"
-              << std::setw(8)  << "재고"
-              << std::setw(10) << "활성주문"
-              << std::setw(8)  << "상태"
-              << "잔여율\n";
-    std::cout << "  " << std::string(kSepLen, '-') << "\n";
+    printSep(kStockSepLen);
+    std::cout << "  재고량 현황\n";
+    printSep(kStockSepLen);
+    // 열 display 너비: sampleId=8, name=14, stock=8, activeSum=10, status=8
+    // 시료ID(6열)+2공백=8, 이름(4열)+10공백=14, 재고(4열)+4공백=8, 활성주문(8열)+2공백=10, 상태(4열)+4공백=8
+    std::cout << "  시료ID  이름          재고    활성주문  상태    잔여율\n";
+    printSep(kStockSepLen);
     for (const auto& ss : list) {
         std::cout << "  " << std::left
                   << std::setw(8)  << ss.sampleId
@@ -54,6 +62,7 @@ void MonitoringView::printStockStatusList(const std::vector<StockStatus>& list) 
                   << std::setw(8)  << ss.status;
         std::cout << std::fixed << std::setprecision(0) << ss.remainRatio << "%\n";
     }
+    printSep(kStockSepLen);
 }
 
 void MonitoringView::printCountdown(int seconds) const {
